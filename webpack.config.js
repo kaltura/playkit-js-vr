@@ -74,9 +74,7 @@ module.exports = {
     }]
   },
   devServer: {
-    contentBase: __dirname + "/src",
-    host: '192.168.1.14',
-    port: '3001'
+    contentBase: __dirname + "/src"
   },
   resolve: {
     modules: [
