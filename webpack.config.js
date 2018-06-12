@@ -1,10 +1,10 @@
 'use strict';
 
-const webpack = require("webpack");
+const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const path = require("path");
-const PROD = (process.env.NODE_ENV === 'production');
-const packageData = require("./package.json");
+const path = require('path');
+const PROD = process.env.NODE_ENV === 'production';
+const packageData = require('./package.json');
 
 const plugins = [
   new webpack.DefinePlugin({
@@ -16,71 +16,82 @@ const plugins = [
 if (PROD) {
   plugins.push(new webpack.optimize.UglifyJsPlugin({sourceMap: true}));
 } else {
-  plugins.push(new CopyWebpackPlugin([{
-    from: '',
-    to: '.'
-  }]));
+  plugins.push(
+    new CopyWebpackPlugin([
+      {
+        from: '',
+        to: '.'
+      }
+    ])
+  );
 }
 
 module.exports = {
-  context: __dirname + "/src",
+  context: __dirname + '/src',
   entry: {
-    "playkit-vr": "index.js"
+    'playkit-vr': 'index.js'
   },
   output: {
-    path: __dirname + "/dist",
+    path: __dirname + '/dist',
     filename: '[name].js',
-    library: ["playkit", "vr"],
-    libraryTarget: "umd",
-    devtoolModuleFilenameTemplate: "./vr/[resource-path]"
+    library: ['playkit', 'vr'],
+    libraryTarget: 'umd',
+    devtoolModuleFilenameTemplate: './vr/[resource-path]'
   },
   devtool: 'source-map',
   plugins: plugins,
   module: {
-    loaders: [{
-      test: /\.css$/,
-      loader: "style-loader!css-loader"
-    }],
-    rules: [{
-      test: /\.js$/,
-      use: [{
-        loader: "babel-loader"
-      }],
-      exclude: [
-        /node_modules/
-      ]
-    }, {
-      test: /\.js$/,
-      exclude: [
-
-        /node_modules/
-      ],
-      enforce: 'pre',
-      use: [{
-        loader: 'eslint-loader',
-        options: {
-          rules: {
-            semi: 0
+    loaders: [
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader'
+      }
+    ],
+    rules: [
+      {
+        test: /\.js$/,
+        use: [
+          {
+            loader: 'babel-loader'
           }
-        }
-      }]
-    }, {
-      test: /\.css$/,
-      use: [{
-        loader: "style-loader"
-      }, {
-        loader: "css-loader"
-      }]
-    }]
+        ],
+        exclude: [/node_modules/]
+      },
+      {
+        test: /\.js$/,
+        exclude: [/node_modules/],
+        enforce: 'pre',
+        use: [
+          {
+            loader: 'eslint-loader',
+            options: {
+              rules: {
+                semi: 0
+              }
+            }
+          }
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader'
+          }
+        ]
+      }
+    ]
   },
   devServer: {
-    contentBase: __dirname + "/src"
+    contentBase: __dirname + '/src',
+    host: '192.168.163.21',
+    port: '3001'
   },
   resolve: {
-    modules: [
-      path.resolve(__dirname, "src"),
-      "node_modules"
-    ]
+    modules: [path.resolve(__dirname, 'src'), 'node_modules']
   },
   externals: {
     'playkit-js': {

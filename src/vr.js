@@ -1,7 +1,7 @@
 // @flow
-import {BasePlugin, Utils} from 'playkit-js'
-import * as THREE from 'three'
-import './style.css'
+import {BasePlugin, Utils} from 'playkit-js';
+import * as THREE from 'three';
+import './style.css';
 
 /**
  * The 360 canvas class.
@@ -80,8 +80,16 @@ export default class Vr extends BasePlugin {
       if (this.player.is360()) {
         this.logger.debug('360 entry has detected');
         this._appendCanvasOverlayAction();
-        this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, this._initComponents.bind(this));
-        this.eventManager.listen(this.player, this.player.Event.ENDED, this._cancelAnimationFrame.bind(this));
+        this.eventManager.listen(
+          this.player,
+          this.player.Event.FIRST_PLAY,
+          this._initComponents.bind(this)
+        );
+        this.eventManager.listen(
+          this.player,
+          this.player.Event.ENDED,
+          this._cancelAnimationFrame.bind(this)
+        );
         this.eventManager.listen(this.player, this.player.Event.REPLAY, this._render.bind(this));
         this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
         this._addMotionBindings();
@@ -95,10 +103,16 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   _addMotionBindings(): void {
-    this.eventManager.listen(this._canvasOverlayAction, 'mousedown', (e) => this._onCanvasOverlayPointerDown(e));
-    this.eventManager.listen(this._canvasOverlayAction, 'touchstart', (e) => this._onCanvasOverlayPointerDown(e));
-    this.eventManager.listen(window, 'mousemove', (e) => this._onDocumentPointerMove(e));
-    this.eventManager.listen(window, 'touchmove', (e) => this._onDocumentPointerMove(e), {passive: false});
+    this.eventManager.listen(this._canvasOverlayAction, 'mousedown', e =>
+      this._onCanvasOverlayPointerDown(e)
+    );
+    this.eventManager.listen(this._canvasOverlayAction, 'touchstart', e =>
+      this._onCanvasOverlayPointerDown(e)
+    );
+    this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
+    this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {
+      passive: false
+    });
     this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
     this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
     this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
@@ -132,8 +146,16 @@ export default class Vr extends BasePlugin {
 
     const cameraOptions = this.config.cameraOptions;
     const dimensions = this._getCanvasDimensions();
-    const aspect = (dimensions.width && dimensions.height) ? dimensions.width / dimensions.height : cameraOptions.aspect;
-    this._camera = new THREE.PerspectiveCamera(cameraOptions.fov, aspect, cameraOptions.near, cameraOptions.far);
+    const aspect =
+      dimensions.width && dimensions.height
+        ? dimensions.width / dimensions.height
+        : cameraOptions.aspect;
+    this._camera = new THREE.PerspectiveCamera(
+      cameraOptions.fov,
+      aspect,
+      cameraOptions.near,
+      cameraOptions.far
+    );
     this._camera.target = new THREE.Vector3(0, 0, 0);
 
     this._texture = new THREE.VideoTexture(videoElement);
@@ -176,16 +198,22 @@ export default class Vr extends BasePlugin {
     this._latitude = Math.max(-89, Math.min(89, this._latitude));
 
     // moving the camera according to current latitude (vertical movement) and longitude (horizontal movement)
-    this._camera.target.x = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.cos(THREE.Math.degToRad(this._longitude));
+    this._camera.target.x =
+      500 *
+      Math.sin(THREE.Math.degToRad(90 - this._latitude)) *
+      Math.cos(THREE.Math.degToRad(this._longitude));
     this._camera.target.y = 500 * Math.cos(THREE.Math.degToRad(90 - this._latitude));
-    this._camera.target.z = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.sin(THREE.Math.degToRad(this._longitude));
+    this._camera.target.z =
+      500 *
+      Math.sin(THREE.Math.degToRad(90 - this._latitude)) *
+      Math.sin(THREE.Math.degToRad(this._longitude));
     this._camera.lookAt(this._camera.target);
   }
 
   _getCanvasDimensions(): Object {
     const view = this.player.getView();
     const video = this.player.getVideoElement();
-    const pWidth = parseInt(video.videoWidth / video.videoHeight * view.offsetHeight);
+    const pWidth = parseInt((video.videoWidth / video.videoHeight) * view.offsetHeight);
     let videoRatio;
     let dimensions;
     if (view.offsetWidth < pWidth) {
@@ -264,8 +292,14 @@ export default class Vr extends BasePlugin {
   _onDocumentPointerMove(event): void {
     if (this._pointerDown) {
       if (event.clientX || (event.touches && event.touches.length === 1)) {
-        this._longitude = (this._previousX - (event.clientX || event.touches[0].clientX)) * this.config.moveMultiplier + this._longitude;
-        this._latitude = ((event.clientY || event.touches[0].clientY) - this._previousY) * this.config.moveMultiplier + this._latitude;
+        this._longitude =
+          (this._previousX - (event.clientX || event.touches[0].clientX)) *
+            this.config.moveMultiplier +
+          this._longitude;
+        this._latitude =
+          ((event.clientY || event.touches[0].clientY) - this._previousY) *
+            this.config.moveMultiplier +
+          this._latitude;
       }
       this._previousX = event.clientX || event.touches[0].clientX;
       this._previousY = event.clientY || event.touches[0].clientY;
@@ -288,13 +322,20 @@ export default class Vr extends BasePlugin {
       if (portrait) {
         this._longitude = this._longitude - beta * mobileVibrationValue;
         this._latitude = this._latitude + alpha * mobileVibrationValue;
-      } else { // landscape
+      } else {
+        // landscape
         let orientationDegree = -90;
         if (orientation) {
           orientationDegree = orientation;
         }
-        this._longitude = (orientationDegree === -90) ? this._longitude + alpha * mobileVibrationValue : this._longitude - alpha * mobileVibrationValue;
-        this._latitude = (orientationDegree === -90) ? this._latitude + beta * mobileVibrationValue : this._latitude - beta * mobileVibrationValue;
+        this._longitude =
+          orientationDegree === -90
+            ? this._longitude + alpha * mobileVibrationValue
+            : this._longitude - alpha * mobileVibrationValue;
+        this._latitude =
+          orientationDegree === -90
+            ? this._latitude + beta * mobileVibrationValue
+            : this._latitude - beta * mobileVibrationValue;
       }
     }
   }

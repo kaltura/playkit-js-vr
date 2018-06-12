@@ -1,22 +1,22 @@
-import '../../src/index.js'
-import {loadPlayer} from 'playkit-js'
-import * as TestUtils from 'playkit-js/test/src/utils/test-utils'
+import '../../src/index.js';
+import {loadPlayer} from 'playkit-js';
+import * as TestUtils from 'playkit-js/test/src/utils/test-utils';
 
 const targetId = 'player-placeholder_vr.spec';
 
-describe('VrPlugin', function () {
+describe('VrPlugin', function() {
   let player;
   const config = {
     sources: {
       progressive: [
         {
-          mimetype: "video/mp4",
-          url: "http://www.html5videoplayer.net/videos/toystory.mp4"
+          mimetype: 'video/mp4',
+          url: 'http://www.html5videoplayer.net/videos/toystory.mp4'
         }
       ]
     },
     plugins: {
-      "vr": {}
+      vr: {}
     }
   };
 
@@ -33,21 +33,21 @@ describe('VrPlugin', function () {
     el.appendChild(player.getView());
   }
 
-  before(function () {
+  before(function() {
     createPlayerPlaceholder(targetId);
   });
 
-  afterEach(function () {
+  afterEach(function() {
     player.destroy();
     player = null;
     TestUtils.removeVideoElementsFromTestPage();
   });
 
-  after(function () {
+  after(function() {
     TestUtils.removeElement(targetId);
   });
 
-  it('should play mp4 stream with vr plugin', (done) => {
+  it('should play mp4 stream with vr plugin', done => {
     setupPlayer(config);
     player.addEventListener(player.Event.PLAYING, () => {
       done();
