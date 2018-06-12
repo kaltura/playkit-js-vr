@@ -33,7 +33,7 @@ export default class Vr extends BasePlugin {
       fov: 75,
       aspect: 640 / 360,
       near: 0.1,
-      far: 2000
+      far: 1000
     }
   };
 
@@ -80,17 +80,9 @@ export default class Vr extends BasePlugin {
       if (this.player.is360()) {
         this.logger.debug('360 entry has detected');
         this._appendCanvasOverlayAction();
-        this.eventManager.listen(
-          this.player,
-          this.player.Event.FIRST_PLAY,
-          this._initComponents.bind(this)
-        );
-        this.eventManager.listen(
-          this.player,
-          this.player.Event.ENDED,
-          this._cancelAnimationFrame.bind(this)
-        );
-        this.eventManager.listen(this.player, this.player.Event.REPLAY, this._render.bind(this));
+        this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, this._initComponents.bind(this));
+        this.eventManager.listen(this.player, this.player.Event.ENDED, this._cancelAnimationFrame.bind(this));
+        this.eventManager.listen(this.player, this.player.Event.PLAY, this._onPlay.bind(this));
         this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
         this._addMotionBindings();
       }
@@ -103,20 +95,13 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   _addMotionBindings(): void {
-    this.eventManager.listen(this._canvasOverlayAction, 'mousedown', e =>
-      this._onCanvasOverlayPointerDown(e)
-    );
-    this.eventManager.listen(this._canvasOverlayAction, 'touchstart', e =>
-      this._onCanvasOverlayPointerDown(e)
-    );
+    this.eventManager.listen(this._canvasOverlayAction, 'mousedown', e => this._onCanvasOverlayPointerDown(e));
+    this.eventManager.listen(this._canvasOverlayAction, 'touchstart', e => this._onCanvasOverlayPointerDown(e));
     this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
-    this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {
-      passive: false
-    });
+    this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
     this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
     this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
     this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
-    this.eventManager.listen(window, 'deviceorientation', this._onMobileOrientation.bind(this));
   }
 
   /**
@@ -139,42 +124,38 @@ export default class Vr extends BasePlugin {
     this.logger.debug('Init 360 components');
     const videoElement = this.player.getVideoElement();
 
-    this._renderer = new THREE.WebGLRenderer();
+    this._renderer = new THREE.WebGLRenderer({
+      devicePixelRatio: window.devicePixelRatio,
+      alpha: false,
+      clearColor: 0xffffff,
+      antialias: true
+    });
     this._canvas = this._renderer.domElement;
     Utils.Dom.addClassName(this._canvas, CANVAS_360_CLASS);
     this.player.getView().insertBefore(this._canvas, videoElement.nextSibling);
 
     const cameraOptions = this.config.cameraOptions;
     const dimensions = this._getCanvasDimensions();
-    const aspect =
-      dimensions.width && dimensions.height
-        ? dimensions.width / dimensions.height
-        : cameraOptions.aspect;
-    this._camera = new THREE.PerspectiveCamera(
-      cameraOptions.fov,
-      aspect,
-      cameraOptions.near,
-      cameraOptions.far
-    );
+    const aspect = dimensions.width && dimensions.height ? dimensions.width / dimensions.height : cameraOptions.aspect;
+    this._camera = new THREE.PerspectiveCamera(cameraOptions.fov, aspect, cameraOptions.near, cameraOptions.far);
     this._camera.target = new THREE.Vector3(0, 0, 0);
 
     this._texture = new THREE.VideoTexture(videoElement);
     this._texture.minFilter = this._texture.magFilter = THREE.LinearFilter;
+    this._texture.generateMipmaps = false;
+    this._texture.format = THREE.RGBFormat;
 
-    const geometry = new THREE.SphereGeometry(100, 100, 40);
+    const geometry = new THREE.SphereBufferGeometry(256, 32, 32);
     geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
-
-    const material = new THREE.MeshBasicMaterial();
-    material.map = this._texture;
-
+    const material = new THREE.MeshBasicMaterial({map: this._texture, overdraw: true});
     const sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(0, 0, 0);
 
     this._scene = new THREE.Scene();
     this._scene.add(sphere);
 
     // this.effect = new THREE.StereoEffect(this._renderer);
     this._updateCanvasSize();
-    this._render();
   }
 
   _render(): void {
@@ -198,15 +179,9 @@ export default class Vr extends BasePlugin {
     this._latitude = Math.max(-89, Math.min(89, this._latitude));
 
     // moving the camera according to current latitude (vertical movement) and longitude (horizontal movement)
-    this._camera.target.x =
-      500 *
-      Math.sin(THREE.Math.degToRad(90 - this._latitude)) *
-      Math.cos(THREE.Math.degToRad(this._longitude));
+    this._camera.target.x = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.cos(THREE.Math.degToRad(this._longitude));
     this._camera.target.y = 500 * Math.cos(THREE.Math.degToRad(90 - this._latitude));
-    this._camera.target.z =
-      500 *
-      Math.sin(THREE.Math.degToRad(90 - this._latitude)) *
-      Math.sin(THREE.Math.degToRad(this._longitude));
+    this._camera.target.z = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.sin(THREE.Math.degToRad(this._longitude));
     this._camera.lookAt(this._camera.target);
   }
 
@@ -236,6 +211,12 @@ export default class Vr extends BasePlugin {
     if (this._renderer) {
       const dimensions = this._getCanvasDimensions();
       this._renderer.setSize(dimensions.width, dimensions.height);
+    }
+  }
+
+  _onPlay(): void {
+    if (!this._requestId) {
+      this._render();
     }
   }
 
@@ -292,17 +273,11 @@ export default class Vr extends BasePlugin {
   _onDocumentPointerMove(event): void {
     if (this._pointerDown) {
       if (event.clientX || (event.touches && event.touches.length === 1)) {
-        this._longitude =
-          (this._previousX - (event.clientX || event.touches[0].clientX)) *
-            this.config.moveMultiplier +
-          this._longitude;
-        this._latitude =
-          ((event.clientY || event.touches[0].clientY) - this._previousY) *
-            this.config.moveMultiplier +
-          this._latitude;
+        this._longitude = (this._previousX - (event.clientX || event.touches[0].clientX)) * this.config.moveMultiplier + this._longitude;
+        this._latitude = ((event.clientY || event.touches[0].clientY) - this._previousY) * this.config.moveMultiplier + this._latitude;
+        this._previousX = event.clientX || event.touches[0].clientX;
+        this._previousY = event.clientY || event.touches[0].clientY;
       }
-      this._previousX = event.clientX || event.touches[0].clientX;
-      this._previousY = event.clientY || event.touches[0].clientY;
       event.preventDefault();
     }
   }
@@ -328,14 +303,8 @@ export default class Vr extends BasePlugin {
         if (orientation) {
           orientationDegree = orientation;
         }
-        this._longitude =
-          orientationDegree === -90
-            ? this._longitude + alpha * mobileVibrationValue
-            : this._longitude - alpha * mobileVibrationValue;
-        this._latitude =
-          orientationDegree === -90
-            ? this._latitude + beta * mobileVibrationValue
-            : this._latitude - beta * mobileVibrationValue;
+        this._longitude = orientationDegree === -90 ? this._longitude + alpha * mobileVibrationValue : this._longitude - alpha * mobileVibrationValue;
+        this._latitude = orientationDegree === -90 ? this._latitude + beta * mobileVibrationValue : this._latitude - beta * mobileVibrationValue;
       }
     }
   }
