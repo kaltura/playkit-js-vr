@@ -1,6 +1,7 @@
 // @flow
 import {BasePlugin, Utils} from 'playkit-js';
 import * as THREE from 'three';
+import {customVideoTexture} from './customVideoTexture';
 import './style.css';
 
 /**
@@ -140,7 +141,7 @@ export default class Vr extends BasePlugin {
     this._camera = new THREE.PerspectiveCamera(cameraOptions.fov, aspect, cameraOptions.near, cameraOptions.far);
     this._camera.target = new THREE.Vector3(0, 0, 0);
 
-    this._texture = new THREE.VideoTexture(videoElement);
+    this._texture = this._getVideoTexture(videoElement, dimensions);
     this._texture.minFilter = this._texture.magFilter = THREE.LinearFilter;
     this._texture.generateMipmaps = false;
     this._texture.format = THREE.RGBFormat;
@@ -158,10 +159,23 @@ export default class Vr extends BasePlugin {
     this._updateCanvasSize();
   }
 
+  _getVideoTexture(videoElement: HTMLVideoElement, dimensions): any {
+    if (this.player.env.browser.name === 'IE') {
+      // a workaround for ie11 texture issue
+      // see https://github.com/mrdoob/three.js/issues/7560
+      const ctx2d = document.createElement('canvas').getContext('2d');
+      return new customVideoTexture(ctx2d, dimensions);
+    }
+    return new THREE.VideoTexture(videoElement);
+  }
+
   _render(): void {
     const videoElement = this.player.getVideoElement();
     if (this._texture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
       this._texture.needsUpdate = true;
+      if (this._texture instanceof customVideoTexture) {
+        this._texture.render(videoElement);
+      }
     }
     this._requestId = requestAnimationFrame(this._render.bind(this));
 
@@ -178,11 +192,13 @@ export default class Vr extends BasePlugin {
     // limiting latitude from -85 to 85 (cannot point to the sky or under your feet)
     this._latitude = Math.max(-89, Math.min(89, this._latitude));
 
-    // moving the camera according to current latitude (vertical movement) and longitude (horizontal movement)
-    this._camera.target.x = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.cos(THREE.Math.degToRad(this._longitude));
-    this._camera.target.y = 500 * Math.cos(THREE.Math.degToRad(90 - this._latitude));
-    this._camera.target.z = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.sin(THREE.Math.degToRad(this._longitude));
-    this._camera.lookAt(this._camera.target);
+    if (this._camera) {
+      // moving the camera according to current latitude (vertical movement) and longitude (horizontal movement)
+      this._camera.target.x = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.cos(THREE.Math.degToRad(this._longitude));
+      this._camera.target.y = 500 * Math.cos(THREE.Math.degToRad(90 - this._latitude));
+      this._camera.target.z = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.sin(THREE.Math.degToRad(this._longitude));
+      this._camera.lookAt(this._camera.target);
+    }
   }
 
   _getCanvasDimensions(): Object {
@@ -292,7 +308,6 @@ export default class Vr extends BasePlugin {
       const beta = event.rotationRate.beta;
       const portrait = window.innerHeight > window.innerWidth;
       const orientation = event.orientation || window.orientation;
-      // this.logger.error('alpha:' + alpha);
       const mobileVibrationValue = this.config.mobileVibrationValue;
       if (portrait) {
         this._longitude = this._longitude - beta * mobileVibrationValue;
