@@ -10,12 +10,6 @@ import './style.css';
  * @const
  */
 const CANVAS_360_CLASS: string = 'playkit-360-canvas';
-/**
- * The 360 canvas overlay id.
- * @type {string}
- * @const
- */
-const CANVAS_360_OVERLAY_ID: string = 'playkit-360-canvas-overlay';
 
 /**
  * Your class description.
@@ -78,9 +72,8 @@ export default class Vr extends BasePlugin {
    */
   _addBindings(): void {
     this.eventManager.listen(this.player, this.player.Event.SOURCE_SELECTED, () => {
-      if (this.player.is360()) {
+      if (this.player.isVr()) {
         this.logger.debug('360 entry has detected');
-        this._appendCanvasOverlayAction();
         this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, this._initComponents.bind(this));
         this.eventManager.listen(this.player, this.player.Event.ENDED, this._cancelAnimationFrame.bind(this));
         this.eventManager.listen(this.player, this.player.Event.PLAY, this._onPlay.bind(this));
@@ -96,24 +89,11 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   _addMotionBindings(): void {
-    this.eventManager.listen(this._canvasOverlayAction, 'mousedown', e => this._onCanvasOverlayPointerDown(e));
-    this.eventManager.listen(this._canvasOverlayAction, 'touchstart', e => this._onCanvasOverlayPointerDown(e));
     this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
     this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
     this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
     this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
     this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
-  }
-
-  /**
-   * _appendCanvasOverlayAction
-   * @private
-   * @returns {void}
-   */
-  _appendCanvasOverlayAction(): void {
-    this._canvasOverlayAction = document.createElement('div');
-    this._canvasOverlayAction.id = CANVAS_360_OVERLAY_ID;
-    this.player.getView().appendChild(this._canvasOverlayAction);
   }
 
   /**
@@ -254,7 +234,6 @@ export default class Vr extends BasePlugin {
    */
   reset(): void {
     this.player.getView().removeChild(this._canvas);
-    this._canvasOverlayAction.parentNode.removeChild(this._canvasOverlayAction);
     this.eventManager.removeAll();
     this._initMembers();
     this._cancelAnimationFrame();
@@ -280,10 +259,10 @@ export default class Vr extends BasePlugin {
     this._requestId = null;
   }
 
-  _onCanvasOverlayPointerDown(event): void {
+  notifyPointerDown(coordinates): void {
     this._pointerDown = true;
-    this._previousX = event.clientX || event.touches[0].clientX;
-    this._previousY = event.clientY || event.touches[0].clientY;
+    this._previousX = coordinates.x;
+    this._previousY = coordinates.y;
   }
 
   _onDocumentPointerMove(event): void {
