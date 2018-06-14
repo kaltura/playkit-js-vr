@@ -1,7 +1,8 @@
 // @flow
 import {BasePlugin, Utils} from 'playkit-js';
 import * as THREE from 'three';
-import {customVideoTexture} from './customVideoTexture';
+import {CustomVideoTexture} from './custom-video-texture';
+import {StereoEffect} from './stereo-effect';
 import './style.css';
 
 /**
@@ -24,6 +25,7 @@ export default class Vr extends BasePlugin {
   static defaultConfig: Object = {
     moveMultiplier: 0.15,
     mobileVibrationValue: 0.02,
+    startInStereo: false,
     cameraOptions: {
       fov: 75,
       aspect: 640 / 360,
@@ -42,10 +44,11 @@ export default class Vr extends BasePlugin {
   }
 
   _renderer: any;
-  _canvas: any;
   _scene: any;
   _camera: any;
   _texture: any;
+  _effect: any;
+  _stereoMode: boolean;
   _requestId: number;
   _pointerDown: boolean;
   _previousX: number;
@@ -111,9 +114,9 @@ export default class Vr extends BasePlugin {
       clearColor: 0xffffff,
       antialias: true
     });
-    this._canvas = this._renderer.domElement;
-    Utils.Dom.addClassName(this._canvas, CANVAS_360_CLASS);
-    this.player.getView().insertBefore(this._canvas, videoElement.nextSibling);
+    const canvas = this._renderer.domElement;
+    Utils.Dom.addClassName(canvas, CANVAS_360_CLASS);
+    this.player.getView().insertBefore(canvas, videoElement.nextSibling);
 
     const cameraOptions = this.config.cameraOptions;
     const dimensions = this._getCanvasDimensions();
@@ -135,7 +138,7 @@ export default class Vr extends BasePlugin {
     this._scene = new THREE.Scene();
     this._scene.add(sphere);
 
-    // this.effect = new THREE.StereoEffect(this._renderer);
+    this._effect = new StereoEffect(this._renderer);
     this._updateCanvasSize();
   }
 
@@ -144,7 +147,7 @@ export default class Vr extends BasePlugin {
       // a workaround for ie11 texture issue
       // see https://github.com/mrdoob/three.js/issues/7560
       const ctx2d = document.createElement('canvas').getContext('2d');
-      return new customVideoTexture(ctx2d, dimensions);
+      return new CustomVideoTexture(ctx2d, dimensions);
     }
     return new THREE.VideoTexture(videoElement);
   }
@@ -153,7 +156,7 @@ export default class Vr extends BasePlugin {
     const videoElement = this.player.getVideoElement();
     if (this._texture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
       this._texture.needsUpdate = true;
-      if (this._texture instanceof customVideoTexture) {
+      if (this._texture instanceof CustomVideoTexture) {
         this._texture.render(videoElement);
       }
     }
@@ -161,11 +164,11 @@ export default class Vr extends BasePlugin {
 
     this._updateCamera();
 
-    // if (this.vrMode) {
-    //   this.effect.render(this._scene, this._camera);
-    // } else {
-    this._renderer.render(this._scene, this._camera);
-    // }
+    if (this._stereoMode) {
+      this._effect.render(this._scene, this._camera);
+    } else {
+      this._renderer.render(this._scene, this._camera);
+    }
   }
 
   _updateCamera(): void {
@@ -233,19 +236,25 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   reset(): void {
-    this.player.getView().removeChild(this._canvas);
+    this._cancelAnimationFrame();
+    this.player.getView().removeChild(this._renderer.domElement);
     this.eventManager.removeAll();
     this._initMembers();
-    this._cancelAnimationFrame();
     this._addBindings();
+  }
+
+  toggleStereoMode(): void {
+    this._stereoMode = !this._stereoMode;
+    this._updateCanvasSize();
   }
 
   _initMembers(): void {
     this._renderer = null;
-    this._canvas = null;
     this._scene = null;
     this._camera = null;
     this._texture = null;
+    this._effect = null;
+    this._stereoMode = this.config.startInStereo;
     this._requestId = null;
     this._pointerDown = false;
     this._previousX = NaN;

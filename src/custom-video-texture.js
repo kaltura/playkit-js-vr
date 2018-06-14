@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-class customVideoTexture extends THREE.Texture {
+class CustomVideoTexture extends THREE.Texture {
   constructor(ctx2d, dimensions) {
     super(ctx2d.canvas);
     this._ctx2d = ctx2d;
@@ -14,4 +14,4 @@ class customVideoTexture extends THREE.Texture {
   }
 }
 
-export {customVideoTexture};
+export {CustomVideoTexture};
