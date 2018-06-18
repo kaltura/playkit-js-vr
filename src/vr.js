@@ -92,6 +92,9 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   _addMotionBindings(): void {
+    const overlayAction = document.querySelector(`#${this.config.rootElement} .playkit-overlay-action`);
+    this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
+    this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
     this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
     this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
     this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
@@ -268,10 +271,10 @@ export default class Vr extends BasePlugin {
     this._requestId = null;
   }
 
-  notifyPointerDown(coordinates): void {
+  _onOverlayActionPointerDown(event): void {
     this._pointerDown = true;
-    this._previousX = coordinates.x;
-    this._previousY = coordinates.y;
+    this._previousX = event.clientX || event.touches[0].clientX;
+    this._previousY = event.clientY || event.touches[0].clientY;
   }
 
   _onDocumentPointerMove(event): void {
