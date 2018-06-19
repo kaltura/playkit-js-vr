@@ -1,5 +1,5 @@
 // @flow
-import {BasePlugin, Utils} from 'playkit-js';
+import {BasePlugin, Utils, FakeEvent, Error as PKError} from 'playkit-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
@@ -74,16 +74,53 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   _addBindings(): void {
-    this.eventManager.listen(this.player, this.player.Event.SOURCE_SELECTED, () => {
+    this.eventManager.listen(this.player, this.player.Event.SOURCE_SELECTED, event => {
       if (this.player.isVr()) {
-        this.logger.debug('360 entry has detected');
-        this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, this._initComponents.bind(this));
-        this.eventManager.listen(this.player, this.player.Event.ENDED, this._cancelAnimationFrame.bind(this));
-        this.eventManager.listen(this.player, this.player.Event.PLAY, this._onPlay.bind(this));
-        this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
-        this._addMotionBindings();
+        this.logger.debug('VR entry has detected');
+        this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => {
+          if (this._vrSupport(event)) {
+            this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, this._initComponents.bind(this));
+            this.eventManager.listen(this.player, this.player.Event.ENDED, this._cancelAnimationFrame.bind(this));
+            this.eventManager.listen(this.player, this.player.Event.PLAY, this._onPlay.bind(this));
+            this.eventManager.listen(this.player, this.player.Event.PLAYING, this._onPlaying.bind(this));
+            this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
+            this._addMotionBindings();
+          }
+        });
       }
     });
+  }
+
+  _isMobileSafariInline(): boolean {
+    return (
+      this.player.config.playback.playsinline === false &&
+      this.player.env.browser.name === 'Mobile Safari' &&
+      this.player.env.device.type === 'mobile'
+    );
+  }
+
+  _vrSupport(event: any): boolean {
+    let message = '';
+    if (this._isMobileSafariInline()) {
+      message = 'playsinline must be true for VR experience';
+    }
+    if (event.payload.selectedSource[0].drmData) {
+      message = 'Cannot apply VR experience for DRM content';
+    }
+    if (message) {
+      this.eventManager.listen(this.player, this.player.Event.PLAYING, () => {
+        this.logger.warn('The playback paused due to VR experience not supported');
+        this.player.pause();
+      });
+      this.player.dispatchEvent(
+        new FakeEvent(
+          this.player.Event.ERROR,
+          new PKError(PKError.Severity.CRITICAL, PKError.Category.PLUGIN, PKError.Code.PLUGIN_FATAL_ERROR, message)
+        )
+      );
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -222,6 +259,10 @@ export default class Vr extends BasePlugin {
     }
   }
 
+  _onPlaying(): void {
+    this._updateCanvasSize();
+  }
+
   /**
    * Destroys the plugin.
    * @override
@@ -240,8 +281,10 @@ export default class Vr extends BasePlugin {
    */
   reset(): void {
     this._cancelAnimationFrame();
-    this.player.getView().removeChild(this._renderer.domElement);
     this.eventManager.removeAll();
+    if (this._renderer) {
+      this.player.getView().removeChild(this._renderer.domElement);
+    }
     this._initMembers();
     this._addBindings();
   }
