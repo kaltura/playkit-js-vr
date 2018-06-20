@@ -298,7 +298,7 @@ class Vr extends BasePlugin {
     this._updateCanvasSize();
   }
 
-  getVrStereoMode(): boolean {
+  isInVrStereoMode(): boolean {
     return this._stereoMode;
   }
 
