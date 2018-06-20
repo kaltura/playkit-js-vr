@@ -1,22 +1,29 @@
 // @flow
-import {BasePlugin, Utils, FakeEvent, Error as PKError} from 'playkit-js';
+import {BasePlugin, Utils, FakeEvent, Env, Error as PKError} from 'playkit-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
 import './style.css';
 
 /**
- * The 360 canvas class.
+ * The VR canvas class.
  * @type {string}
  * @const
  */
-const CANVAS_360_CLASS: string = 'playkit-360-canvas';
+const CANVAS_VR_CLASS: string = 'playkit-vr-canvas';
 
 /**
- * Your class description.
+ * The overlay action class.
+ * @type {string}
+ * @const
+ */
+const OVERLAY_ACTION_CLASS: string = 'playkit-overlay-action';
+
+/**
+ * VR class.
  * @classdesc
  */
-export default class Vr extends BasePlugin {
+class Vr extends BasePlugin {
   /**
    * The default configuration of the plugin.
    * @type {Object}
@@ -40,7 +47,7 @@ export default class Vr extends BasePlugin {
    * @returns {boolean} - Whether the plugin is valid.
    */
   static isValid(): boolean {
-    return true;
+    return Env.browser.name !== 'IE' || (Env.browser.major === '11' && (Env.os.version === '8.1' || Env.os.version === '10'));
   }
 
   _renderer: any;
@@ -49,7 +56,7 @@ export default class Vr extends BasePlugin {
   _texture: any;
   _effect: any;
   _stereoMode: boolean;
-  _requestId: number;
+  _rafId: number;
   _pointerDown: boolean;
   _previousX: number;
   _previousY: number;
@@ -79,10 +86,10 @@ export default class Vr extends BasePlugin {
         this.logger.debug('VR entry has detected');
         this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => {
           if (this._vrSupport(event)) {
-            this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, this._initComponents.bind(this));
-            this.eventManager.listen(this.player, this.player.Event.ENDED, this._cancelAnimationFrame.bind(this));
-            this.eventManager.listen(this.player, this.player.Event.PLAY, this._onPlay.bind(this));
-            this.eventManager.listen(this.player, this.player.Event.PLAYING, this._onPlaying.bind(this));
+            this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
+            this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
+            this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
+            this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
             this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
             this._addMotionBindings();
           }
@@ -91,7 +98,7 @@ export default class Vr extends BasePlugin {
     });
   }
 
-  _isMobileSafariInline(): boolean {
+  _isIOSPlayer(): boolean {
     return (
       this.player.config.playback.playsinline === false &&
       this.player.env.browser.name === 'Mobile Safari' &&
@@ -101,7 +108,7 @@ export default class Vr extends BasePlugin {
 
   _vrSupport(event: any): boolean {
     let message = '';
-    if (this._isMobileSafariInline()) {
+    if (this._isIOSPlayer()) {
       message = 'playsinline must be true for VR experience';
     }
     if (event.payload.selectedSource[0].drmData) {
@@ -113,10 +120,7 @@ export default class Vr extends BasePlugin {
         this.player.pause();
       });
       this.player.dispatchEvent(
-        new FakeEvent(
-          this.player.Event.ERROR,
-          new PKError(PKError.Severity.CRITICAL, PKError.Category.PLUGIN, PKError.Code.PLUGIN_FATAL_ERROR, message)
-        )
+        new FakeEvent(this.player.Event.ERROR, new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, message))
       );
       return false;
     }
@@ -129,14 +133,16 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   _addMotionBindings(): void {
-    const overlayAction = document.querySelector(`#${this.config.rootElement} .playkit-overlay-action`);
+    const overlayAction = Utils.Dom.getElementBySelector(`#${this.config.rootElement} .${OVERLAY_ACTION_CLASS}`);
     this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
     this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
     this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
     this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
     this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
     this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
-    this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
+    if (window.DeviceMotionEvent) {
+      this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
+    }
   }
 
   /**
@@ -145,7 +151,7 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   _initComponents(): void {
-    this.logger.debug('Init 360 components');
+    this.logger.debug('Init VR components');
     const videoElement = this.player.getVideoElement();
 
     this._renderer = new THREE.WebGLRenderer({
@@ -155,8 +161,8 @@ export default class Vr extends BasePlugin {
       antialias: true
     });
     const canvas = this._renderer.domElement;
-    Utils.Dom.addClassName(canvas, CANVAS_360_CLASS);
-    this.player.getView().insertBefore(canvas, videoElement.nextSibling);
+    Utils.Dom.addClassName(canvas, CANVAS_VR_CLASS);
+    Utils.Dom.insertBefore(this.player.getView(), canvas, videoElement.nextSibling);
 
     const cameraOptions = this.config.cameraOptions;
     const dimensions = this._getCanvasDimensions();
@@ -186,7 +192,7 @@ export default class Vr extends BasePlugin {
     if (this.player.env.browser.name === 'IE') {
       // a workaround for ie11 texture issue
       // see https://github.com/mrdoob/three.js/issues/7560
-      const ctx2d = document.createElement('canvas').getContext('2d');
+      const ctx2d = Utils.Dom.createElement('canvas').getContext('2d');
       return new CustomVideoTexture(ctx2d, dimensions);
     }
     return new THREE.VideoTexture(videoElement);
@@ -200,7 +206,7 @@ export default class Vr extends BasePlugin {
         this._texture.render(videoElement);
       }
     }
-    this._requestId = requestAnimationFrame(this._render.bind(this));
+    this._rafId = requestAnimationFrame(this._render.bind(this));
 
     this._updateCamera();
 
@@ -212,10 +218,10 @@ export default class Vr extends BasePlugin {
   }
 
   _updateCamera(): void {
-    // limiting latitude from -85 to 85 (cannot point to the sky or under your feet)
-    this._latitude = Math.max(-89, Math.min(89, this._latitude));
-
     if (this._camera) {
+      // limiting latitude from -89 to 89 (cannot point to the sky or under your feet)
+      this._latitude = Math.max(-89, Math.min(89, this._latitude));
+
       // moving the camera according to current latitude (vertical movement) and longitude (horizontal movement)
       this._camera.target.x = 500 * Math.sin(THREE.Math.degToRad(90 - this._latitude)) * Math.cos(THREE.Math.degToRad(this._longitude));
       this._camera.target.y = 500 * Math.cos(THREE.Math.degToRad(90 - this._latitude));
@@ -224,12 +230,12 @@ export default class Vr extends BasePlugin {
     }
   }
 
-  _getCanvasDimensions(): Object {
+  _getCanvasDimensions(): Dimensions {
     const view = this.player.getView();
     const video = this.player.getVideoElement();
     const pWidth = parseInt((video.videoWidth / video.videoHeight) * view.offsetHeight);
     let videoRatio;
-    let dimensions;
+    let dimensions: Dimensions;
     if (view.offsetWidth < pWidth) {
       videoRatio = video.videoHeight / video.videoWidth;
       dimensions = {
@@ -248,13 +254,14 @@ export default class Vr extends BasePlugin {
 
   _updateCanvasSize(): void {
     if (this._renderer) {
-      const dimensions = this._getCanvasDimensions();
+      const dimensions: Dimensions = this._getCanvasDimensions();
       this._renderer.setSize(dimensions.width, dimensions.height);
     }
   }
 
   _onPlay(): void {
-    if (!this._requestId) {
+    if (!this._rafId) {
+      // first play or replay
       this._render();
     }
   }
@@ -270,7 +277,7 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   destroy(): void {
-    this.reset();
+    this._clean();
   }
 
   /**
@@ -280,18 +287,27 @@ export default class Vr extends BasePlugin {
    * @returns {void}
    */
   reset(): void {
-    this._cancelAnimationFrame();
-    this.eventManager.removeAll();
-    if (this._renderer) {
-      this.player.getView().removeChild(this._renderer.domElement);
-    }
+    this._clean();
     this._initMembers();
     this._addBindings();
   }
 
-  toggleStereoMode(): void {
+  toggleVrStereoMode(): void {
     this._stereoMode = !this._stereoMode;
+    this.player.dispatchEvent(new FakeEvent(this.player.Event.VR_STEREO_MODE_CHANGED, {mode: this._stereoMode}));
     this._updateCanvasSize();
+  }
+
+  getVrStereoMode(): boolean {
+    return this._stereoMode;
+  }
+
+  _clean(): void {
+    this._cancelAnimationFrame();
+    this.eventManager.removeAll();
+    if (this._renderer) {
+      Utils.Dom.removeChild(this.player.getView(), this._renderer.domElement);
+    }
   }
 
   _initMembers(): void {
@@ -301,7 +317,7 @@ export default class Vr extends BasePlugin {
     this._texture = null;
     this._effect = null;
     this._stereoMode = this.config.startInStereo;
-    this._requestId = null;
+    this._rafId = null;
     this._pointerDown = false;
     this._previousX = NaN;
     this._previousY = NaN;
@@ -310,8 +326,8 @@ export default class Vr extends BasePlugin {
   }
 
   _cancelAnimationFrame(): void {
-    cancelAnimationFrame(this._requestId);
-    this._requestId = null;
+    cancelAnimationFrame(this._rafId);
+    this._rafId = null;
   }
 
   _onOverlayActionPointerDown(event): void {
@@ -358,3 +374,5 @@ export default class Vr extends BasePlugin {
     }
   }
 }
+
+export {Vr};
