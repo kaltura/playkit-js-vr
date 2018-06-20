@@ -34,7 +34,7 @@ module.exports = {
   output: {
     path: __dirname + '/dist',
     filename: '[name].js',
-    library: ['playkit', 'vr'],
+    library: ['KalturaPlayer', 'plugins', 'vr'],
     libraryTarget: 'umd',
     devtoolModuleFilenameTemplate: './vr/[resource-path]'
   },
@@ -86,9 +86,7 @@ module.exports = {
     ]
   },
   devServer: {
-    contentBase: __dirname + '/src',
-    host: '192.168.163.21',
-    port: '3001'
+    contentBase: __dirname + '/src'
   },
   resolve: {
     modules: [path.resolve(__dirname, 'src'), 'node_modules']
