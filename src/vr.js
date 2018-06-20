@@ -292,12 +292,22 @@ class Vr extends BasePlugin {
     this._addBindings();
   }
 
+  /**
+   * Toggling the VR mode
+   * @returns {void}
+   * @public
+   */
   toggleVrStereoMode(): void {
     this._stereoMode = !this._stereoMode;
     this.player.dispatchEvent(new FakeEvent(this.player.Event.VR_STEREO_MODE_CHANGED, {mode: this._stereoMode}));
     this._updateCanvasSize();
   }
 
+  /**
+   * Checking if the VR stereo mode is active.
+   * @returns {boolean} - Whether is active.
+   * @public
+   */
   isInStereoMode(): boolean {
     return this._stereoMode;
   }
