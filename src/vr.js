@@ -188,7 +188,7 @@ class Vr extends BasePlugin {
     this._updateCanvasSize();
   }
 
-  _getVideoTexture(videoElement: HTMLVideoElement, dimensions): any {
+  _getVideoTexture(videoElement: HTMLVideoElement, dimensions: Dimensions): any {
     if (this.player.env.browser.name === 'IE') {
       // a workaround for ie11 texture issue
       // see https://github.com/mrdoob/three.js/issues/7560
@@ -317,7 +317,7 @@ class Vr extends BasePlugin {
     this._texture = null;
     this._effect = null;
     this._stereoMode = this.config.startInStereo;
-    this._rafId = null;
+    this._rafId = NaN;
     this._pointerDown = false;
     this._previousX = NaN;
     this._previousY = NaN;
@@ -327,16 +327,16 @@ class Vr extends BasePlugin {
 
   _cancelAnimationFrame(): void {
     cancelAnimationFrame(this._rafId);
-    this._rafId = null;
+    this._rafId = NaN;
   }
 
-  _onOverlayActionPointerDown(event): void {
+  _onOverlayActionPointerDown(event: any): void {
     this._pointerDown = true;
     this._previousX = event.clientX || event.touches[0].clientX;
     this._previousY = event.clientY || event.touches[0].clientY;
   }
 
-  _onDocumentPointerMove(event): void {
+  _onDocumentPointerMove(event: any): void {
     if (this._pointerDown) {
       if (event.clientX || (event.touches && event.touches.length === 1)) {
         this._longitude = (this._previousX - (event.clientX || event.touches[0].clientX)) * this.config.moveMultiplier + this._longitude;
@@ -352,7 +352,7 @@ class Vr extends BasePlugin {
     this._pointerDown = false;
   }
 
-  _onDeviceMotion(event): void {
+  _onDeviceMotion(event: any): void {
     if (event.rotationRate) {
       const alpha = event.rotationRate.alpha;
       const beta = event.rotationRate.beta;

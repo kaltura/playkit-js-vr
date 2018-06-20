@@ -1,21 +1,25 @@
+// @flow
 import * as THREE from 'three';
 
 class StereoEffect {
-  constructor(renderer) {
+  _renderer: any;
+  _stereo: any;
+
+  constructor(renderer: any) {
     this._renderer = renderer;
     this._stereo = new THREE.StereoCamera();
     this._stereo.aspect = 0.5;
   }
 
-  setEyeSeparation(eyeSep) {
+  setEyeSeparation(eyeSep: number) {
     this._stereo.eyeSep = eyeSep;
   }
 
-  setSize(width, height) {
+  setSize(width: number, height: number) {
     this._renderer.setSize(width, height);
   }
 
-  render(scene, camera) {
+  render(scene: any, camera: any) {
     scene.updateMatrixWorld();
 
     if (camera.parent === null) {
