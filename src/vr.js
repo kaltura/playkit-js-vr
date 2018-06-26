@@ -50,7 +50,7 @@ class Vr extends BasePlugin {
     return Env.browser.name !== 'IE' || (Env.browser.major === '11' && (Env.os.version === '8.1' || Env.os.version === '10'));
   }
 
-  _support: boolean;
+  _isSupported: boolean;
   _renderer: any;
   _scene: any;
   _camera: any;
@@ -87,7 +87,7 @@ class Vr extends BasePlugin {
         this.logger.debug('VR entry has detected');
         this._addMotionBindings();
         this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => {
-          if (this._vrSupport(event)) {
+          if (this._isVrSupported(event.payload.selectedSource[0])) {
             this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
             this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
             this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
@@ -107,12 +107,12 @@ class Vr extends BasePlugin {
     );
   }
 
-  _vrSupport(event: any): boolean {
+  _isVrSupported(source: PKMediaSourceObject): boolean {
     let message = '';
     if (this._isIOSPlayer()) {
       message = 'playsinline must be true for VR experience';
     }
-    if (event.payload.selectedSource[0].drmData) {
+    if (source.drmData) {
       message = 'Cannot apply VR experience for DRM content';
     }
     if (message) {
@@ -123,9 +123,9 @@ class Vr extends BasePlugin {
       this.player.dispatchEvent(
         new FakeEvent(this.player.Event.ERROR, new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, message))
       );
-      this._support = false;
+      this._isSupported = false;
     }
-    return this._support;
+    return this._isSupported;
   }
 
   /**
@@ -325,7 +325,7 @@ class Vr extends BasePlugin {
   }
 
   _initMembers(): void {
-    this._support = true;
+    this._isSupported = true;
     this._renderer = null;
     this._scene = null;
     this._camera = null;
@@ -346,7 +346,7 @@ class Vr extends BasePlugin {
   }
 
   _onOverlayActionPointerDown(event: any): void {
-    if (this._support) {
+    if (this._isSupported) {
       this._pointerDown = true;
       this._previousX = event.clientX || event.touches[0].clientX;
       this._previousY = event.clientY || event.touches[0].clientY;
