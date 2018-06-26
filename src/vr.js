@@ -50,6 +50,7 @@ class Vr extends BasePlugin {
     return Env.browser.name !== 'IE' || (Env.browser.major === '11' && (Env.os.version === '8.1' || Env.os.version === '10'));
   }
 
+  _support: boolean;
   _renderer: any;
   _scene: any;
   _camera: any;
@@ -84,6 +85,7 @@ class Vr extends BasePlugin {
     this.eventManager.listen(this.player, this.player.Event.SOURCE_SELECTED, event => {
       if (this.player.isVr()) {
         this.logger.debug('VR entry has detected');
+        this._addMotionBindings();
         this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => {
           if (this._vrSupport(event)) {
             this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
@@ -91,7 +93,6 @@ class Vr extends BasePlugin {
             this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
             this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
             this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
-            this._addMotionBindings();
           }
         });
       }
@@ -122,9 +123,9 @@ class Vr extends BasePlugin {
       this.player.dispatchEvent(
         new FakeEvent(this.player.Event.ERROR, new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, message))
       );
-      return false;
+      this._support = false;
     }
-    return true;
+    return this._support;
   }
 
   /**
@@ -134,12 +135,14 @@ class Vr extends BasePlugin {
    */
   _addMotionBindings(): void {
     const overlayAction = Utils.Dom.getElementBySelector(`#${this.config.rootElement} .${OVERLAY_ACTION_CLASS}`);
-    this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
-    this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
-    this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
-    this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
-    this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
-    this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
+    if (overlayAction) {
+      this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
+      this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
+      this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
+      this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
+      this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
+      this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
+    }
     if (window.DeviceMotionEvent) {
       this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
     }
@@ -256,6 +259,7 @@ class Vr extends BasePlugin {
     if (this._renderer) {
       const dimensions: Dimensions = this._getCanvasDimensions();
       this._renderer.setSize(dimensions.width, dimensions.height, false);
+      this.logger.debug('Update the VR canvas dimensions', dimensions);
     }
   }
 
@@ -321,6 +325,7 @@ class Vr extends BasePlugin {
   }
 
   _initMembers(): void {
+    this._support = true;
     this._renderer = null;
     this._scene = null;
     this._camera = null;
@@ -341,9 +346,11 @@ class Vr extends BasePlugin {
   }
 
   _onOverlayActionPointerDown(event: any): void {
-    this._pointerDown = true;
-    this._previousX = event.clientX || event.touches[0].clientX;
-    this._previousY = event.clientY || event.touches[0].clientY;
+    if (this._support) {
+      this._pointerDown = true;
+      this._previousX = event.clientX || event.touches[0].clientX;
+      this._previousY = event.clientY || event.touches[0].clientY;
+    }
   }
 
   _onDocumentPointerMove(event: any): void {
