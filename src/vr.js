@@ -84,16 +84,14 @@ class Vr extends BasePlugin {
     this.eventManager.listen(this.player, this.player.Event.SOURCE_SELECTED, event => {
       if (this.player.isVr()) {
         this.logger.debug('VR entry has detected');
-        this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => {
-          if (this._vrSupport(event)) {
-            this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
-            this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
-            this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
-            this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
-            this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
-            this._addMotionBindings();
-          }
-        });
+        if (this._isVrSupported(event.payload.selectedSource[0])) {
+          this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
+          this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
+          this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
+          this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
+          this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
+          this._addMotionBindings();
+        }
       }
     });
   }
@@ -106,12 +104,12 @@ class Vr extends BasePlugin {
     );
   }
 
-  _vrSupport(event: any): boolean {
+  _isVrSupported(source: PKMediaSourceObject): boolean {
     let message = '';
     if (this._isIOSPlayer()) {
       message = 'playsinline must be true for VR experience';
     }
-    if (event.payload.selectedSource[0].drmData) {
+    if (source.drmData) {
       message = 'Cannot apply VR experience for DRM content';
     }
     if (message) {
@@ -134,12 +132,14 @@ class Vr extends BasePlugin {
    */
   _addMotionBindings(): void {
     const overlayAction = Utils.Dom.getElementBySelector(`#${this.config.rootElement} .${OVERLAY_ACTION_CLASS}`);
-    this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
-    this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
-    this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
-    this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
-    this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
-    this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
+    if (overlayAction) {
+      this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
+      this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
+      this.eventManager.listen(window, 'mousemove', e => this._onDocumentPointerMove(e));
+      this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
+      this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
+      this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
+    }
     if (window.DeviceMotionEvent) {
       this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
     }
@@ -256,6 +256,7 @@ class Vr extends BasePlugin {
     if (this._renderer) {
       const dimensions: Dimensions = this._getCanvasDimensions();
       this._renderer.setSize(dimensions.width, dimensions.height, false);
+      this.logger.debug('Update the VR canvas dimensions', dimensions);
     }
   }
 
