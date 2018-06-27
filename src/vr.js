@@ -274,40 +274,46 @@ class Vr extends BasePlugin {
     }
   }
 
+  _setRendererSize(dimensions: Dimensions): void {
+    this._renderer.setSize(dimensions.width, dimensions.height, false);
+    this.logger.debug('Update the VR canvas dimensions', dimensions);
+  }
+
+  _updateCanvasSizeByInterval(): void {
+    let calculateCanvasSizeIntervalCounter = 0;
+    let dimensions: Dimensions;
+    this._clearCalculateInterval();
+    this._calculateCanvasSizeInterval = setInterval(() => {
+      dimensions = this._getCanvasDimensions();
+      if (dimensions.width) {
+        this._clearCalculateInterval();
+        this._setRendererSize(dimensions);
+      } else if (++calculateCanvasSizeIntervalCounter >= CALCULATE_CANVAS_SIZE_LIMIT) {
+        // can't get the canvas dimensions
+        this.player.pause();
+        this._clean();
+        this.player.dispatchEvent(
+          new FakeEvent(
+            this.player.Event.ERROR,
+            new PKError(
+              PKError.Severity.CRITICAL,
+              PKError.Category.VR,
+              PKError.Code.VR_NOT_SUPPORTED,
+              'Unable to obtain the video size for VR canvas'
+            )
+          )
+        );
+      }
+    }, CALCULATE_CANVAS_SIZE_INTERVAL);
+  }
+
   _updateCanvasSize(): void {
     if (this._renderer) {
-      const setRendererSize = dimensions => {
-        this._renderer.setSize(dimensions.width, dimensions.height, false);
-        this.logger.debug('Update the VR canvas dimensions', dimensions);
-      };
       let dimensions: Dimensions = this._getCanvasDimensions();
       if (dimensions.width) {
-        setRendererSize(dimensions);
+        this._setRendererSize(dimensions);
       } else {
-        let calculateCanvasSizeIntervalCounter = 0;
-        this._clearCalculateInterval();
-        this._calculateCanvasSizeInterval = setInterval(() => {
-          dimensions = this._getCanvasDimensions();
-          if (dimensions.width) {
-            this._clearCalculateInterval();
-            setRendererSize(dimensions);
-          } else if (++calculateCanvasSizeIntervalCounter >= CALCULATE_CANVAS_SIZE_LIMIT) {
-            // can't get the canvas dimensions
-            this.player.pause();
-            this._clean();
-            this.player.dispatchEvent(
-              new FakeEvent(
-                this.player.Event.ERROR,
-                new PKError(
-                  PKError.Severity.CRITICAL,
-                  PKError.Category.VR,
-                  PKError.Code.VR_NOT_SUPPORTED,
-                  'Unable to obtain the video size for VR canvas'
-                )
-              )
-            );
-          }
-        }, CALCULATE_CANVAS_SIZE_INTERVAL);
+        this._updateCanvasSizeByInterval();
       }
     }
   }
