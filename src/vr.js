@@ -20,6 +20,20 @@ const CANVAS_VR_CLASS: string = 'playkit-vr-canvas';
 const OVERLAY_ACTION_CLASS: string = 'playkit-overlay-action';
 
 /**
+ * Time interval (in milliseconds) to try ubtaining the vr canvas size
+ * @type {number}
+ * @const
+ */
+const CALCULATE_CANVAS_SIZE_INTERVAL: number = 100;
+
+/**
+ * How many times to try ubtaining the vr canvas size until failure (600 is a minute for an interval of 100 ms)
+ * @type {number}
+ * @const
+ */
+const CALCULATE_CANVAS_SIZE_LIMIT: number = 600;
+
+/**
  * VR class.
  * @classdesc
  */
@@ -31,7 +45,7 @@ class Vr extends BasePlugin {
    */
   static defaultConfig: Object = {
     moveMultiplier: 0.15,
-    mobileVibrationValue: 0.02,
+    deviceMotionMultiplier: 1,
     startInStereo: false,
     cameraOptions: {
       fov: 75,
@@ -62,6 +76,7 @@ class Vr extends BasePlugin {
   _previousY: number;
   _latitude: number;
   _longitude: number;
+  _calculateCanvasSizeInterval: ?number;
 
   /**
    * @constructor
@@ -252,11 +267,48 @@ class Vr extends BasePlugin {
     return dimensions;
   }
 
+  _clearCalculateInterval(): void {
+    if (this._calculateCanvasSizeInterval) {
+      clearInterval(this._calculateCanvasSizeInterval);
+      this._calculateCanvasSizeInterval = null;
+    }
+  }
+
   _updateCanvasSize(): void {
     if (this._renderer) {
-      const dimensions: Dimensions = this._getCanvasDimensions();
-      this._renderer.setSize(dimensions.width, dimensions.height, false);
-      this.logger.debug('Update the VR canvas dimensions', dimensions);
+      const setRendererSize = dimensions => {
+        this._renderer.setSize(dimensions.width, dimensions.height, false);
+        this.logger.debug('Update the VR canvas dimensions', dimensions);
+      };
+      let dimensions: Dimensions = this._getCanvasDimensions();
+      if (dimensions.width) {
+        setRendererSize(dimensions);
+      } else {
+        let calculateCanvasSizeIntervalCounter = 0;
+        this._clearCalculateInterval();
+        this._calculateCanvasSizeInterval = setInterval(() => {
+          dimensions = this._getCanvasDimensions();
+          if (dimensions.width) {
+            this._clearCalculateInterval();
+            setRendererSize(dimensions);
+          } else if (++calculateCanvasSizeIntervalCounter >= CALCULATE_CANVAS_SIZE_LIMIT) {
+            // can't get the canvas dimensions
+            this.player.pause();
+            this._clean();
+            this.player.dispatchEvent(
+              new FakeEvent(
+                this.player.Event.ERROR,
+                new PKError(
+                  PKError.Severity.CRITICAL,
+                  PKError.Category.VR,
+                  PKError.Code.VR_NOT_SUPPORTED,
+                  'Unable to obtain the video size for VR canvas'
+                )
+              )
+            );
+          }
+        }, CALCULATE_CANVAS_SIZE_INTERVAL);
+      }
     }
   }
 
@@ -319,6 +371,7 @@ class Vr extends BasePlugin {
     if (this._renderer) {
       Utils.Dom.removeChild(this.player.getView(), this._renderer.domElement);
     }
+    this._clearCalculateInterval();
   }
 
   _initMembers(): void {
@@ -363,13 +416,20 @@ class Vr extends BasePlugin {
     this._pointerDown = false;
   }
 
+  _getMobileVibrationValue(): number {
+    if (this.player.env.browser.name === 'Android Browser') {
+      return 1;
+    }
+    return 0.01;
+  }
+
   _onDeviceMotion(event: any): void {
     if (event.rotationRate) {
       const alpha = event.rotationRate.alpha;
       const beta = event.rotationRate.beta;
       const portrait = window.innerHeight > window.innerWidth;
       const orientation = event.orientation || window.orientation;
-      const mobileVibrationValue = this.config.mobileVibrationValue;
+      const mobileVibrationValue = this.config.deviceMotionMultiplier * this._getMobileVibrationValue();
       if (portrait) {
         this._longitude = this._longitude - beta * mobileVibrationValue;
         this._latitude = this._latitude + alpha * mobileVibrationValue;
