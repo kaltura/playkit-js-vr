@@ -117,7 +117,7 @@ class Vr extends BasePlugin {
     const env = this.player.env;
     if (
       typeof this.player.crossOrigin !== 'string' &&
-      (env.os.name === 'iOS' || env.os.name === 'Mac OS' || env.browser.name === 'Android Browser')
+      (env.os.name === 'iOS' || env.browser.name === 'Safari' || env.browser.name === 'Android Browser')
     ) {
       this._crossOriginSet = true;
       this.player.crossOrigin = this.player.CorsType.ANONYMOUS;
