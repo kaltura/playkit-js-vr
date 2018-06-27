@@ -314,8 +314,8 @@ class Vr extends BasePlugin {
   }
 
   /**
-   * In some browsers (android browser for example) the videoWidth is unknown but after soem time after playing
-   * For this case wh have to retry gathering this value by an interval, and limit it until a failure.
+   * In some browsers (android browser for example) the videoWidth is unknown but in some time after playing.
+   * For this case we have to retry gathering this value by an interval, and limit it until a failure.
    * @private
    */
   _updateCanvasSizeByInterval(): void {
