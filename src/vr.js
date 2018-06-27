@@ -34,6 +34,27 @@ const CALCULATE_CANVAS_SIZE_INTERVAL: number = 100;
 const CALCULATE_CANVAS_SIZE_LIMIT: number = 600;
 
 /**
+ * Error message when playsinline is false
+ * @type {string}
+ * @const
+ */
+const PLAYSINLINE_ERROR: string = 'playsinline must be true for VR experience';
+
+/**
+ * Error message when is DRM content
+ * @type {string}
+ * @const
+ */
+const DRM_ERROR: string = 'Cannot apply VR experience for DRM content';
+
+/**
+ * Error message when cannot calculate the video size
+ * @type {string}
+ * @const
+ */
+const VIDEO_SIZE_ERROR: string = 'Unable to obtain the video size for VR canvas';
+
+/**
  * VR class.
  * @classdesc
  */
@@ -135,10 +156,10 @@ class Vr extends BasePlugin {
   _isVrSupported(source: PKMediaSourceObject): boolean {
     let message = '';
     if (this._isIOSPlayer()) {
-      message = 'playsinline must be true for VR experience';
+      message = PLAYSINLINE_ERROR;
     }
     if (source.drmData) {
-      message = 'Cannot apply VR experience for DRM content';
+      message = DRM_ERROR;
     }
     if (message) {
       this.eventManager.listen(this.player, this.player.Event.PLAYING, () => {
@@ -302,18 +323,13 @@ class Vr extends BasePlugin {
         this._clearCalculateInterval();
         this._setRendererSize(dimensions);
       } else if (++calculateCanvasSizeIntervalCounter >= CALCULATE_CANVAS_SIZE_LIMIT) {
-        // can't get the canvas dimensions
+        // the video size is unavailable. cannot set the canvas size.
         this.player.pause();
         this._clean();
         this.player.dispatchEvent(
           new FakeEvent(
             this.player.Event.ERROR,
-            new PKError(
-              PKError.Severity.CRITICAL,
-              PKError.Category.VR,
-              PKError.Code.VR_NOT_SUPPORTED,
-              'Unable to obtain the video size for VR canvas'
-            )
+            new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, VIDEO_SIZE_ERROR)
           )
         );
       }
