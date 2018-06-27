@@ -309,7 +309,7 @@ class Vr extends BasePlugin {
 
   _updateCanvasSize(): void {
     if (this._renderer) {
-      let dimensions: Dimensions = this._getCanvasDimensions();
+      const dimensions: Dimensions = this._getCanvasDimensions();
       if (dimensions.width) {
         this._setRendererSize(dimensions);
       } else {
