@@ -77,6 +77,7 @@ class Vr extends BasePlugin {
   _latitude: number;
   _longitude: number;
   _calculateCanvasSizeInterval: ?number;
+  _crossOriginSet: boolean;
 
   /**
    * @constructor
@@ -106,9 +107,21 @@ class Vr extends BasePlugin {
           this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
           this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
           this._addMotionBindings();
+          this._setCrossOrigin();
         }
       }
     });
+  }
+
+  _setCrossOrigin(): void {
+    const env = this.player.env;
+    if (
+      typeof this.player.crossOrigin !== 'string' &&
+      (env.os.name === 'iOS' || env.os.name === 'Mac OS' || env.browser.name === 'Android Browser')
+    ) {
+      this._crossOriginSet = true;
+      this.player.crossOrigin = this.player.CorsType.ANONYMOUS;
+    }
   }
 
   _isIOSPlayer(): boolean {
@@ -377,6 +390,9 @@ class Vr extends BasePlugin {
     if (this._renderer) {
       Utils.Dom.removeChild(this.player.getView(), this._renderer.domElement);
     }
+    if (this._crossOriginSet) {
+      this.player.crossOrigin = null;
+    }
     this._clearCalculateInterval();
   }
 
@@ -393,6 +409,7 @@ class Vr extends BasePlugin {
     this._previousY = NaN;
     this._latitude = 0;
     this._longitude = 180;
+    this._crossOriginSet = false;
   }
 
   _cancelAnimationFrame(): void {
