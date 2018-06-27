@@ -313,6 +313,11 @@ class Vr extends BasePlugin {
     this.logger.debug('Update the VR canvas dimensions', dimensions);
   }
 
+  /**
+   * In some browsers (android browser for example) the videoWidth is unknown but after soem time after playing
+   * For this case wh have to retry gathering this value by an interval, and limit it until a failure.
+   * @private
+   */
   _updateCanvasSizeByInterval(): void {
     let calculateCanvasSizeIntervalCounter = 0;
     let dimensions: Dimensions;
