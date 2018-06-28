@@ -20,6 +20,41 @@ const CANVAS_VR_CLASS: string = 'playkit-vr-canvas';
 const OVERLAY_ACTION_CLASS: string = 'playkit-overlay-action';
 
 /**
+ * Time interval (in milliseconds) to try ubtaining the vr canvas size
+ * @type {number}
+ * @const
+ */
+const CALCULATE_CANVAS_SIZE_INTERVAL: number = 100;
+
+/**
+ * How many times to try ubtaining the vr canvas size until failure (600 is a minute for an interval of 100 ms)
+ * @type {number}
+ * @const
+ */
+const CALCULATE_CANVAS_SIZE_LIMIT: number = 600;
+
+/**
+ * Error message when playsinline is false
+ * @type {string}
+ * @const
+ */
+const PLAYSINLINE_ERROR: string = 'playsinline must be true for VR experience';
+
+/**
+ * Error message when is DRM content
+ * @type {string}
+ * @const
+ */
+const DRM_ERROR: string = 'Cannot apply VR experience for DRM content';
+
+/**
+ * Error message when cannot calculate the video size
+ * @type {string}
+ * @const
+ */
+const VIDEO_SIZE_ERROR: string = 'Unable to obtain the video size for VR canvas';
+
+/**
  * VR class.
  * @classdesc
  */
@@ -31,7 +66,7 @@ class Vr extends BasePlugin {
    */
   static defaultConfig: Object = {
     moveMultiplier: 0.15,
-    mobileVibrationValue: 0.02,
+    deviceMotionMultiplier: 1,
     startInStereo: false,
     cameraOptions: {
       fov: 75,
@@ -62,6 +97,8 @@ class Vr extends BasePlugin {
   _previousY: number;
   _latitude: number;
   _longitude: number;
+  _calculateCanvasSizeInterval: ?number;
+  _crossOriginSet: boolean;
 
   /**
    * @constructor
@@ -91,9 +128,21 @@ class Vr extends BasePlugin {
           this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
           this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
           this._addMotionBindings();
+          this._setCrossOrigin();
         }
       }
     });
+  }
+
+  _setCrossOrigin(): void {
+    const env = this.player.env;
+    if (
+      typeof this.player.crossOrigin !== 'string' &&
+      (env.os.name === 'iOS' || env.browser.name === 'Safari' || env.browser.name === 'Android Browser')
+    ) {
+      this._crossOriginSet = true;
+      this.player.crossOrigin = this.player.CorsType.ANONYMOUS;
+    }
   }
 
   _isIOSPlayer(): boolean {
@@ -107,10 +156,10 @@ class Vr extends BasePlugin {
   _isVrSupported(source: PKMediaSourceObject): boolean {
     let message = '';
     if (this._isIOSPlayer()) {
-      message = 'playsinline must be true for VR experience';
+      message = PLAYSINLINE_ERROR;
     }
     if (source.drmData) {
-      message = 'Cannot apply VR experience for DRM content';
+      message = DRM_ERROR;
     }
     if (message) {
       this.eventManager.listen(this.player, this.player.Event.PLAYING, () => {
@@ -252,11 +301,54 @@ class Vr extends BasePlugin {
     return dimensions;
   }
 
+  _clearCalculateInterval(): void {
+    if (this._calculateCanvasSizeInterval) {
+      clearInterval(this._calculateCanvasSizeInterval);
+      this._calculateCanvasSizeInterval = null;
+    }
+  }
+
+  _setRendererSize(dimensions: Dimensions): void {
+    this._renderer.setSize(dimensions.width, dimensions.height, false);
+    this.logger.debug('Update the VR canvas dimensions', dimensions);
+  }
+
+  /**
+   * In some browsers (android browser for example) the videoWidth is unknown but in some time after playing.
+   * For this case we have to retry gathering this value by an interval, and limit it until a failure.
+   * @private
+   */
+  _updateCanvasSizeByInterval(): void {
+    let calculateCanvasSizeIntervalCounter = 0;
+    let dimensions: Dimensions;
+    this._clearCalculateInterval();
+    this._calculateCanvasSizeInterval = setInterval(() => {
+      dimensions = this._getCanvasDimensions();
+      if (dimensions.width) {
+        this._clearCalculateInterval();
+        this._setRendererSize(dimensions);
+      } else if (++calculateCanvasSizeIntervalCounter >= CALCULATE_CANVAS_SIZE_LIMIT) {
+        // the video size is unavailable. cannot set the canvas size.
+        this.player.pause();
+        this._clean();
+        this.player.dispatchEvent(
+          new FakeEvent(
+            this.player.Event.ERROR,
+            new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, VIDEO_SIZE_ERROR)
+          )
+        );
+      }
+    }, CALCULATE_CANVAS_SIZE_INTERVAL);
+  }
+
   _updateCanvasSize(): void {
     if (this._renderer) {
       const dimensions: Dimensions = this._getCanvasDimensions();
-      this._renderer.setSize(dimensions.width, dimensions.height, false);
-      this.logger.debug('Update the VR canvas dimensions', dimensions);
+      if (dimensions.width) {
+        this._setRendererSize(dimensions);
+      } else {
+        this._updateCanvasSizeByInterval();
+      }
     }
   }
 
@@ -319,6 +411,10 @@ class Vr extends BasePlugin {
     if (this._renderer) {
       Utils.Dom.removeChild(this.player.getView(), this._renderer.domElement);
     }
+    if (this._crossOriginSet) {
+      this.player.crossOrigin = null;
+    }
+    this._clearCalculateInterval();
   }
 
   _initMembers(): void {
@@ -334,6 +430,7 @@ class Vr extends BasePlugin {
     this._previousY = NaN;
     this._latitude = 0;
     this._longitude = 180;
+    this._crossOriginSet = false;
   }
 
   _cancelAnimationFrame(): void {
@@ -363,13 +460,20 @@ class Vr extends BasePlugin {
     this._pointerDown = false;
   }
 
+  _getMobileVibrationValue(): number {
+    if (this.player.env.browser.name === 'Android Browser') {
+      return 1;
+    }
+    return 0.01;
+  }
+
   _onDeviceMotion(event: any): void {
     if (event.rotationRate) {
       const alpha = event.rotationRate.alpha;
       const beta = event.rotationRate.beta;
       const portrait = window.innerHeight > window.innerWidth;
       const orientation = event.orientation || window.orientation;
-      const mobileVibrationValue = this.config.mobileVibrationValue;
+      const mobileVibrationValue = this.config.deviceMotionMultiplier * this._getMobileVibrationValue();
       if (portrait) {
         this._longitude = this._longitude - beta * mobileVibrationValue;
         this._latitude = this._latitude + alpha * mobileVibrationValue;
