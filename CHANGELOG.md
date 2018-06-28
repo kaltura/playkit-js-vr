@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.3"></a>
+## [1.1.3](https://github.com/kaltura/playkit-js-vr/compare/v1.1.2...v1.1.3) (2018-06-28)
+
+
+### Bug Fixes
+
+* **FEC-8344:** 2 vertical lines with frames of the video appear on left and right sides of the player on IE11 ([#6](https://github.com/kaltura/playkit-js-vr/issues/6)) ([02ba0bc](https://github.com/kaltura/playkit-js-vr/commit/02ba0bc))
+* **FEC-8360:** no error for VR content on iPhone chrome with playsinline false ([#5](https://github.com/kaltura/playkit-js-vr/issues/5)) ([7e0ccec](https://github.com/kaltura/playkit-js-vr/commit/7e0ccec))
+
+
+
 <a name="1.1.2"></a>
 ## [1.1.2](https://github.com/kaltura/playkit-js-vr/compare/v1.1.1...v1.1.2) (2018-06-28)
 
