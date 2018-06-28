@@ -146,11 +146,7 @@ class Vr extends BasePlugin {
   }
 
   _isIOSPlayer(): boolean {
-    return (
-      this.player.config.playback.playsinline === false &&
-      this.player.env.browser.name === 'Mobile Safari' &&
-      this.player.env.device.type === 'mobile'
-    );
+    return this.player.config.playback.playsinline === false && this.player.env.device.model === 'iPhone';
   }
 
   _isVrSupported(source: PKMediaSourceObject): boolean {
