@@ -3,6 +3,7 @@ import {BasePlugin, Utils, FakeEvent, Env, Error as PKError} from 'playkit-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
+import {Error} from './errors';
 import './style.css';
 
 /**
@@ -34,34 +35,6 @@ const CALCULATE_CANVAS_SIZE_INTERVAL: number = 100;
 const CALCULATE_CANVAS_SIZE_LIMIT: number = 600;
 
 /**
- * Error message when playsinline is false
- * @type {string}
- * @const
- */
-const BROWSER_ERROR: string = 'Cannot apply VR experience on this browser';
-
-/**
- * Error message when playsinline is false
- * @type {string}
- * @const
- */
-const PLAYSINLINE_ERROR: string = 'playsinline must be true for VR experience';
-
-/**
- * Error message when is DRM content
- * @type {string}
- * @const
- */
-const DRM_ERROR: string = 'Cannot apply VR experience for DRM content';
-
-/**
- * Error message when cannot calculate the video size
- * @type {string}
- * @const
- */
-const VIDEO_SIZE_ERROR: string = 'Unable to obtain the video size for VR canvas';
-
-/**
  * VR class.
  * @classdesc
  */
@@ -89,7 +62,7 @@ class Vr extends BasePlugin {
    * @returns {boolean} - Whether the plugin is valid.
    */
   static isValid(): boolean {
-    return Env.browser.name !== 'IE' || (Env.browser.major === '11' && (Env.os.version === '8.1' || Env.os.version === '10'));
+    return true;
   }
 
   _renderer: any;
@@ -156,19 +129,28 @@ class Vr extends BasePlugin {
     return this.player.config.playback.playsinline === false && this.player.env.device.model === 'iPhone';
   }
 
-  _isVrSupported(source: PKMediaSourceObject): boolean {
-    let message = '';
+  _isUnSpportedBrowser(): boolean {
     const env = this.player.env;
-    if ((env.browser.name === 'Safari' && env.browser.major < 11) || (env.os.name === 'iOS' && Utils.VERSION.compare(env.os.version, '11.3') < 0)) {
+    return (
+      (env.browser.name === 'Safari' && env.browser.major < 11) ||
+      (env.os.name === 'iOS' && env.os.version < 11.3) ||
       // Safari desktop < 11 and iOS < 11.3 have CORS issue
       // see https://bugs.webkit.org/show_bug.cgi?id=135379
-      message = BROWSER_ERROR;
+      (env.browser.name === 'IE' && !(env.browser.major === '11' && (env.os.version === '8.1' || env.os.version === '10')))
+    );
+    // IE !== 11 on Win-8.1 or Win-10
+  }
+
+  _isVrSupported(source: PKMediaSourceObject): boolean {
+    let message = '';
+    if (this._isUnSpportedBrowser()) {
+      message = Error.UNSUPPORTED_BROWSER;
     }
     if (this._isIOSPlayer()) {
-      message = PLAYSINLINE_ERROR;
+      message = Error.PLAYSINLINE;
     }
     if (source.drmData) {
-      message = DRM_ERROR;
+      message = Error.DRM;
     }
     if (message) {
       this.eventManager.listen(this.player, this.player.Event.PLAYING, () => {
@@ -343,7 +325,7 @@ class Vr extends BasePlugin {
         this.player.dispatchEvent(
           new FakeEvent(
             this.player.Event.ERROR,
-            new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, VIDEO_SIZE_ERROR)
+            new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, Error.VIDEO_SIZE)
           )
         );
       }
