@@ -38,6 +38,13 @@ const CALCULATE_CANVAS_SIZE_LIMIT: number = 600;
  * @type {string}
  * @const
  */
+const BROWSER_ERROR: string = 'Cannot apply VR experience on this browser';
+
+/**
+ * Error message when playsinline is false
+ * @type {string}
+ * @const
+ */
 const PLAYSINLINE_ERROR: string = 'playsinline must be true for VR experience';
 
 /**
@@ -151,6 +158,12 @@ class Vr extends BasePlugin {
 
   _isVrSupported(source: PKMediaSourceObject): boolean {
     let message = '';
+    const env = this.player.env;
+    if ((env.browser.name === 'Safari' && env.browser.major < 11) || (env.os.name === 'iOS' && Utils.VERSION.compare(env.os.version, '11.3') < 0)) {
+      // Safari desktop < 11 and iOS < 11.3 have CORS issue
+      // see https://bugs.webkit.org/show_bug.cgi?id=135379
+      message = BROWSER_ERROR;
+    }
     if (this._isIOSPlayer()) {
       message = PLAYSINLINE_ERROR;
     }
@@ -255,9 +268,9 @@ class Vr extends BasePlugin {
 
     this._updateCamera();
 
-    if (this._stereoMode) {
+    if (this._stereoMode && this._effect) {
       this._effect.render(this._scene, this._camera);
-    } else {
+    } else if (this._renderer) {
       this._renderer.render(this._scene, this._camera);
     }
   }
