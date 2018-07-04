@@ -102,12 +102,12 @@ class Vr extends BasePlugin {
       if (this.player.isVr()) {
         this.logger.debug('VR entry has detected');
         if (this._isVrSupported(event.payload.selectedSource[0])) {
+          this.eventManager.listen(this.player, this.player.Event.LOAD_START, () => this._addMotionBindings());
           this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
           this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
           this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
           this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
           this.eventManager.listen(window, 'resize', () => this._updateCanvasSize());
-          this._addMotionBindings();
           this._setCrossOrigin();
         }
       }
