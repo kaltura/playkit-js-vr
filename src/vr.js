@@ -133,7 +133,7 @@ class Vr extends BasePlugin {
     const env = this.player.env;
     return (
       (env.browser.name === 'Safari' && env.browser.major < 11) ||
-      (env.os.name === 'iOS' && env.os.version < 11.3) ||
+      (env.os.name === 'iOS' && Utils.VERSION.compare(env.os.version, '11.3') < 0) ||
       // Safari desktop < 11 and iOS < 11.3 have CORS issue
       // see https://bugs.webkit.org/show_bug.cgi?id=135379
       (env.browser.name === 'IE' && !(env.browser.major === '11' && (env.os.version === '8.1' || env.os.version === '10')))
