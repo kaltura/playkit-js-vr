@@ -1,5 +1,5 @@
 // @flow
-import {BasePlugin, Utils, FakeEvent, Env, Error as PKError} from 'playkit-js';
+import {BasePlugin, Error as PKError, FakeEvent, Utils} from 'playkit-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
@@ -308,6 +308,7 @@ class Vr extends BasePlugin {
    * In some browsers (android browser for example) the videoWidth is unknown but in some time after playing.
    * For this case we have to retry gathering this value by an interval, and limit it until a failure.
    * @private
+   * @returns {void}
    */
   _updateCanvasSizeByInterval(): void {
     let calculateCanvasSizeIntervalCounter = 0;
