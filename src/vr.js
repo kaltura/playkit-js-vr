@@ -210,7 +210,7 @@ class Vr extends BasePlugin {
     this._camera = new THREE.PerspectiveCamera(cameraOptions.fov, aspect, cameraOptions.near, cameraOptions.far);
     this._camera.target = new THREE.Vector3(0, 0, 0);
 
-    this._texture = this._getVideoTexture(videoElement, dimensions);
+    this._texture = this._getVideoTexture(videoElement);
     this._texture.minFilter = this._texture.magFilter = THREE.LinearFilter;
     this._texture.generateMipmaps = false;
     this._texture.format = THREE.RGBFormat;
@@ -228,12 +228,12 @@ class Vr extends BasePlugin {
     this._updateCanvasSize();
   }
 
-  _getVideoTexture(videoElement: HTMLVideoElement, dimensions: Dimensions): any {
+  _getVideoTexture(videoElement: HTMLVideoElement): any {
     if (this.player.env.browser.name === 'IE') {
       // a workaround for ie11 texture issue
       // see https://github.com/mrdoob/three.js/issues/7560
       const ctx2d = Utils.Dom.createElement('canvas').getContext('2d');
-      return new CustomVideoTexture(ctx2d, dimensions);
+      return new CustomVideoTexture(ctx2d);
     }
     return new THREE.VideoTexture(videoElement);
   }
@@ -243,7 +243,7 @@ class Vr extends BasePlugin {
     if (this._texture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
       this._texture.needsUpdate = true;
       if (this._texture instanceof CustomVideoTexture) {
-        this._texture.render(videoElement);
+        this._texture.render(videoElement, this._getCanvasDimensions());
       }
     }
     this._rafId = requestAnimationFrame(this._render.bind(this));
