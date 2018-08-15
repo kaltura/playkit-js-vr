@@ -1,5 +1,5 @@
 {
-  "name": "playkit-js-vr",
+  "name": "@playkit-js/playkit-js-vr",
   "version": "1.1.6",
   "main": "dist/playkit-vr.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "watch": "webpack --progress --colors --watch",
     "test": "NODE_ENV=test karma start --color",
     "release": "standard-version",
-    "publish": "git push --follow-tags --no-verify origin master",
+    "pushTaggedRelease": "git push --follow-tags --no-verify origin master",
     "eslint": "eslint . --color",
     "flow": "flow check",
     "commit:dist": "git add --force --all dist && (git commit -m 'chore: update dist' || exit 0)",
@@ -26,10 +26,8 @@
       "git add"
     ]
   },
-  "standard-version": {
-    "scripts": {
-      "postbump": "yarn run build && npm run commit:dist"
-    }
+  "dependencies": {
+    "three": "^0.93.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -84,7 +82,15 @@
   "peerDependencies": {
     "playkit-js": "https://github.com/kaltura/playkit-js.git#master"
   },
-  "keywords": [],
+  "keywords": [
+    "vr",
+    "360",
+    "kaltura",
+    "player",
+    "playkit-js",
+    "playkit-js-vr",
+    "html5 player"
+  ],
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
@@ -93,8 +99,5 @@
   "bugs": {
     "url": "https://github.com/kaltura/playkit-js-vr/issues"
   },
-  "homepage": "https://github.com/kaltura/playkit-js-vr#readme",
-  "dependencies": {
-    "three": "^0.93.0"
-  }
+  "homepage": "https://github.com/kaltura/playkit-js-vr#readme"
 }
