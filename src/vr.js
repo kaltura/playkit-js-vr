@@ -7,6 +7,13 @@ import {Error} from './errors';
 import './style.css';
 
 /**
+ * The video tag class.
+ * @type {string}
+ * @const
+ */
+const VIDEO_TAG_CLASS: string = 'playkit-vr-video';
+
+/**
  * The VR canvas class.
  * @type {string}
  * @const
@@ -193,6 +200,7 @@ class Vr extends BasePlugin {
   _initComponents(): void {
     this.logger.debug('Init VR components');
     const videoElement = this.player.getVideoElement();
+    Utils.Dom.addClassName(videoElement, VIDEO_TAG_CLASS);
 
     this._renderer = new THREE.WebGLRenderer({
       devicePixelRatio: window.devicePixelRatio,
@@ -400,6 +408,7 @@ class Vr extends BasePlugin {
   _clean(): void {
     this._cancelAnimationFrame();
     this.eventManager.removeAll();
+    Utils.Dom.removeClassName(this.player.getVideoElement(), VIDEO_TAG_CLASS);
     if (this._renderer) {
       Utils.Dom.removeChild(this.player.getView(), this._renderer.domElement);
     }
