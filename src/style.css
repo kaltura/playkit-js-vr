@@ -1,3 +1,7 @@
+.playkit-vr-video {
+  display: none;
+}
+
 .playkit-vr-canvas {
   position: absolute;
   top: 0;
