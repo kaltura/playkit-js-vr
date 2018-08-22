@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.7"></a>
+## [1.1.7](https://github.com/kaltura/playkit-js-vr/compare/v1.1.6...v1.1.7) (2018-08-22)
+
+
+### Bug Fixes
+
+* **FEC-8489:** black screen on full screen in some android devices ([#14](https://github.com/kaltura/playkit-js-vr/issues/14)) ([69693f2](https://github.com/kaltura/playkit-js-vr/commit/69693f2))
+
+
+
 <a name="1.1.6"></a>
 ## [1.1.6](https://github.com/kaltura/playkit-js-vr/compare/v1.1.5...v1.1.6) (2018-08-08)
 
