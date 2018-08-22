@@ -26,6 +26,9 @@
       "git add"
     ]
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "three": "^0.93.0"
   },
@@ -99,5 +102,8 @@
   "bugs": {
     "url": "https://github.com/kaltura/playkit-js-vr/issues"
   },
-  "homepage": "https://github.com/kaltura/playkit-js-vr#readme"
+  "homepage": "https://github.com/kaltura/playkit-js-vr#readme",
+  "kcc": {
+    "name": "playkit-vr"
+  }
 }
