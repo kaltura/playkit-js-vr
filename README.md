@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/kaltura/playkit-js-vr.svg?branch=master)](https://travis-ci.org/kaltura/playkit-js-vr)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![](https://img.shields.io/npm/v/@playkit-js/playkit-js-vr/latest.svg)](https://www.npmjs.com/package/@playkit-js/playkit-js-vr)
+[![](https://img.shields.io/npm/v/@playkit-js/playkit-js-vr/canary.svg)](https://www.npmjs.com/package/@playkit-js/playkit-js-vr/v/canary)
 
 PlayKit JS VR is written in [ECMAScript6], statically analysed using [Flow] and transpiled in ECMAScript5 using [Babel].
 
