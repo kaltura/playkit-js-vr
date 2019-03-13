@@ -114,7 +114,7 @@ class Vr extends BasePlugin {
           this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
           this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
           this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
-          this.eventManager.listen(this.player, 'resize', () => this._updateCanvasSize());
+          this.eventManager.listen(this.player, this.player.Event.RESIZE, () => this._updateCanvasSize());
           this._setCrossOrigin();
         }
       }
