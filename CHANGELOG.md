@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/kaltura/playkit-js-vr/compare/v1.1.8...v1.2.0) (2019-04-07)
+
+
+### Features
+
+* **FEC-8923:** change VR listener for resize event to use new resize event ([#16](https://github.com/kaltura/playkit-js-vr/issues/16)) ([6e93ca8](https://github.com/kaltura/playkit-js-vr/commit/6e93ca8))
+
+
+
 <a name="1.1.8"></a>
 ## [1.1.8](https://github.com/kaltura/playkit-js-vr/compare/v1.1.7...v1.1.8) (2018-12-24)
 
