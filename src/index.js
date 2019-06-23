@@ -1,13 +1,14 @@
 // @flow
-import {registerPlugin} from 'playkit-js';
-import {Vr} from './vr';
+import {registerPlugin} from '@playkit-js/playkit-js';
+import {Vr as Plugin} from './vr';
 
 declare var __VERSION__: string;
 declare var __NAME__: string;
+const VERSION = __VERSION__;
+const NAME = __NAME__;
 
-export {Vr as Plugin};
-export {__VERSION__ as VERSION, __NAME__ as NAME};
+export {Plugin, VERSION, NAME};
 
 const pluginName: string = 'vr';
 
-registerPlugin(pluginName, Vr);
+registerPlugin(pluginName, Plugin);

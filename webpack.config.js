@@ -1,9 +1,7 @@
 'use strict';
 
 const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
-const PROD = process.env.NODE_ENV === 'production';
 const packageData = require('./package.json');
 
 const plugins = [
@@ -13,78 +11,29 @@ const plugins = [
   })
 ];
 
-if (PROD) {
-  plugins.push(new webpack.optimize.UglifyJsPlugin({sourceMap: true}));
-} else {
-  plugins.push(
-    new CopyWebpackPlugin([
-      {
-        from: '',
-        to: '.'
-      }
-    ])
-  );
-}
-
 module.exports = {
   context: __dirname + '/src',
-  entry: {
-    'playkit-vr': 'index.js'
-  },
+  entry: {'playkit-vr': 'index.js'},
   output: {
     path: __dirname + '/dist',
     filename: '[name].js',
-    library: ['KalturaPlayer', 'plugins', 'vr'],
-    umdNamedDefine: true,
+    library: ['playkit', 'plugins', 'vr'],
     libraryTarget: 'umd',
-    devtoolModuleFilenameTemplate: './vr/[resource-path]'
+    devtoolModuleFilenameTemplate: './plugins/vr/[resource-path]',
   },
+  stats: {all: true},
   devtool: 'source-map',
   plugins: plugins,
   module: {
-    loaders: [
-      {
-        test: /\.css$/,
-        loader: 'style-loader!css-loader'
-      }
-    ],
-    rules: [
-      {
-        test: /\.js$/,
-        use: [
-          {
-            loader: 'babel-loader'
-          }
-        ],
-        exclude: [/node_modules/]
-      },
-      {
-        test: /\.js$/,
-        exclude: [/node_modules/],
-        enforce: 'pre',
-        use: [
-          {
-            loader: 'eslint-loader',
-            options: {
-              rules: {
-                semi: 0
-              }
-            }
-          }
-        ]
-      },
-      {
-        test: /\.css$/,
-        use: [
-          {
-            loader: 'style-loader'
-          },
-          {
-            loader: 'css-loader'
-          }
-        ]
-      }
-    ]
+    rules: [{
+      test: /\.js$/,
+      exclude: /node_modules/,
+      use: ['babel-loader', 'eslint-loader']
+    }, {
+      test: /\.css$/,
+      exclude: /node_modules/,
+      use: ['style-loader', 'css-loader']
+    }]
   },
   devServer: {
     contentBase: __dirname + '/src'
@@ -93,11 +42,11 @@ module.exports = {
     modules: [path.resolve(__dirname, 'src'), 'node_modules']
   },
   externals: {
-    'playkit-js': {
-      commonjs: 'playkit-js',
-      commonjs2: 'playkit-js',
+    '@playkit-js/playkit-js': {
+      commonjs: '@playkit-js/playkit-js',
+      commonjs2: '@playkit-js/playkit-js',
       amd: 'playkit-js',
-      root: ['KalturaPlayer', 'core']
+      root: ['playkit', 'core']
     }
   }
 };

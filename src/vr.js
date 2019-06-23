@@ -1,5 +1,5 @@
 // @flow
-import {BasePlugin, Error as PKError, FakeEvent, Utils} from 'playkit-js';
+import {BasePlugin, Error as PKError, FakeEvent, Utils} from '@playkit-js/playkit-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
