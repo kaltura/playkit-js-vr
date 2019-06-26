@@ -21,7 +21,6 @@ module.exports = {
     libraryTarget: 'umd',
     devtoolModuleFilenameTemplate: './plugins/vr/[resource-path]',
   },
-  stats: {all: true},
   devtool: 'source-map',
   plugins: plugins,
   module: {
