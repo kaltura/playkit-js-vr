@@ -19,7 +19,7 @@ module.exports = {
     filename: '[name].js',
     library: ['playkit', 'plugins', 'vr'],
     libraryTarget: 'umd',
-    devtoolModuleFilenameTemplate: './plugins/vr/[resource-path]',
+    devtoolModuleFilenameTemplate: './playkit/plugins/vr/[resource-path]',
   },
   devtool: 'source-map',
   plugins: plugins,
