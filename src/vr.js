@@ -109,6 +109,12 @@ class Vr extends BasePlugin {
       if (this.player.isVr()) {
         this.logger.debug('VR entry has detected');
         if (this._isVrSupported(event.payload.selectedSource[0])) {
+          if (this.player.env.os.name === 'iOS' && Utils.VERSION.compare(this.player.env.os.version, '13') > 0) {
+            //it will work only on https
+            this.eventManager.listen(window, 'click', () => {
+              DeviceOrientationEvent.requestPermission();
+            });
+          }
           this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => this._addMotionBindings());
           this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
           this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
