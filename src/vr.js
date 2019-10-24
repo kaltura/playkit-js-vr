@@ -110,10 +110,19 @@ class Vr extends BasePlugin {
         this.logger.debug('VR entry has detected');
         if (this._isVrSupported(event.payload.selectedSource[0])) {
           if (this.player.env.os.name === 'iOS' && Utils.VERSION.compare(this.player.env.os.version, '13') > 0) {
-            //it will work only on https
-            this.eventManager.listen(window, 'click', () => {
+            //it will work only on https and popup permission will show up
+            this.eventManager.listenOnce(window, 'click', () => {
               if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
-                window.DeviceOrientationEvent.requestPermission();
+                window.DeviceOrientationEvent.requestPermission()
+                  .then(permissionState => {
+                    if (permissionState === 'granted' && window.DeviceMotionEvent) {
+                      this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
+                    }
+                    this.logger.warn('Permission device motion state', permissionState);
+                  })
+                  .catch(err => {
+                    this.logger.warn('Error occurred on permission request for device motion', err);
+                  });
               }
             });
           }
@@ -194,9 +203,6 @@ class Vr extends BasePlugin {
       this.eventManager.listen(window, 'touchmove', e => this._onDocumentPointerMove(e), {passive: false});
       this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
       this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
-    }
-    if (window.DeviceMotionEvent) {
-      this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
     }
   }
 
