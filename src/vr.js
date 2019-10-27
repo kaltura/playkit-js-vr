@@ -125,6 +125,8 @@ class Vr extends BasePlugin {
                   });
               }
             });
+          } else {
+            this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
           }
           this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => this._addMotionBindings());
           this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
