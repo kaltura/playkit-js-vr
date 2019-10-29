@@ -476,7 +476,7 @@ class Vr extends BasePlugin {
         if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
           window.DeviceOrientationEvent.requestPermission()
             .then(permissionState => {
-              this.logger.warn('Permission device motion state ', permissionState);
+              this.logger.debug('Permission device motion state ', permissionState);
             })
             .catch(err => {
               this.logger.warn('Error occurred on permission request for device motion ', err);
