@@ -109,6 +109,7 @@ class Vr extends BasePlugin {
       if (this.player.isVr()) {
         this.logger.debug('VR entry has detected');
         if (this._isVrSupported(event.payload.selectedSource[0])) {
+          this._requestDeviceMotionPermission();
           this.eventManager.listen(this.player, this.player.Event.MEDIA_LOADED, () => this._addMotionBindings());
           this.eventManager.listen(this.player, this.player.Event.FIRST_PLAY, () => this._initComponents());
           this.eventManager.listen(this.player, this.player.Event.ENDED, () => this._cancelAnimationFrame());
@@ -468,6 +469,22 @@ class Vr extends BasePlugin {
     return 0.01;
   }
 
+  _requestDeviceMotionPermission(): void {
+    if (this.player.env.os.name === 'iOS' && Utils.VERSION.compare(this.player.env.os.version, '13') > 0) {
+      //it will work only on https and popup permission will show up
+      this.eventManager.listenOnce(this.player, this.player.Event.UI.UI_CLICKED, () => {
+        if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
+          window.DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+              this.logger.debug('Permission device motion state ', permissionState);
+            })
+            .catch(err => {
+              this.logger.warn('Error occurred on permission request for device motion ', err);
+            });
+        }
+      });
+    }
+  }
   _onDeviceMotion(event: any): void {
     if (event.rotationRate) {
       const alpha = event.rotationRate.alpha;
