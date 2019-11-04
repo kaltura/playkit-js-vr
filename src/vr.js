@@ -471,8 +471,9 @@ class Vr extends BasePlugin {
 
   _requestDeviceMotionPermission(): void {
     if (this.player.env.os.name === 'iOS' && Utils.VERSION.compare(this.player.env.os.version, '13') > 0) {
+      const rootElement = Utils.Dom.getElementBySelector(`#${this.config.rootElement}`);
       //it will work only on https and popup permission will show up
-      this.eventManager.listenOnce(this.player, this.player.Event.UI.UI_CLICKED, () => {
+      this.eventManager.listenOnce(rootElement, 'click', () => {
         if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
           window.DeviceOrientationEvent.requestPermission()
             .then(permissionState => {
