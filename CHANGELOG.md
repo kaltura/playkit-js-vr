@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.2"></a>
+## [1.3.2](https://github.com/kaltura/playkit-js-vr/compare/v1.3.1...v1.3.2) (2019-11-12)
+
+
+### Bug Fixes
+
+* UI.UI_CLICKED doesn't exist for player ([#34](https://github.com/kaltura/playkit-js-vr/issues/34)) ([06fa049](https://github.com/kaltura/playkit-js-vr/commit/06fa049))
+
+
+
+<a name="1.3.1"></a>
+## [1.3.1](https://github.com/kaltura/playkit-js-vr/compare/v1.3.0...v1.3.1) (2019-11-03)
+
+
+### Bug Fixes
+
+* **FEC-9422:** movement with 360 doesn't work ([#33](https://github.com/kaltura/playkit-js-vr/issues/33)) ([e63c28a](https://github.com/kaltura/playkit-js-vr/commit/e63c28a))
+
+
+
 <a name="1.3.0"></a>
 # [1.3.0](https://github.com/kaltura/playkit-js-vr/compare/v1.1.8...v1.3.0) (2019-04-24)
 
