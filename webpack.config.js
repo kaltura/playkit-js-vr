@@ -13,16 +13,16 @@ const plugins = [
   })
 ];
 
-if (PROD) {
-  plugins.push(new webpack.optimize.UglifyJsPlugin({sourceMap: true}));
-} else {
+if (!PROD) {
   plugins.push(
-    new CopyWebpackPlugin([
-      {
-        from: '',
-        to: '.'
-      }
-    ])
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: '',
+          to: '.'
+        }
+      ]
+    })
   );
 }
 
@@ -42,12 +42,6 @@ module.exports = {
   devtool: 'source-map',
   plugins: plugins,
   module: {
-    loaders: [
-      {
-        test: /\.css$/,
-        loader: 'style-loader!css-loader'
-      }
-    ],
     rules: [
       {
         test: /\.js$/,
@@ -93,11 +87,14 @@ module.exports = {
     modules: [path.resolve(__dirname, 'src'), 'node_modules']
   },
   externals: {
-    'playkit-js': {
-      commonjs: 'playkit-js',
-      commonjs2: 'playkit-js',
+    '@playkit-js/playkit-js': {
+      commonjs: '@playkit-js/playkit-js',
+      commonjs2: '@playkit-js/playkit-js',
       amd: 'playkit-js',
       root: ['KalturaPlayer', 'core']
     }
+  },
+  optimization: {
+    minimize: PROD
   }
 };
