@@ -1,6 +1,6 @@
 import '../../src/index.js';
 import {loadPlayer} from '@playkit-js/playkit-js';
-import * as TestUtils from '@playkit-js/playkit-js/test/src/utils/test-utils';
+import * as TestUtils from './utils/test-utils';
 
 const targetId = 'player-placeholder_vr.spec';
 
