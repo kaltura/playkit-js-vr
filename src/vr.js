@@ -1,5 +1,5 @@
 // @flow
-import {BasePlugin, Error as PKError, FakeEvent, Utils} from 'playkit-js';
+import {BasePlugin, Error as PKError, FakeEvent, Utils} from '@playkit-js/playkit-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
@@ -78,13 +78,13 @@ class Vr extends BasePlugin {
   _texture: any;
   _effect: any;
   _stereoMode: boolean;
-  _rafId: number;
+  _rafId: ?AnimationFrameID;
   _pointerDown: boolean;
   _previousX: number;
   _previousY: number;
   _latitude: number;
   _longitude: number;
-  _calculateCanvasSizeInterval: ?number;
+  _calculateCanvasSizeInterval: ?IntervalID;
   _crossOriginSet: boolean;
 
   /**
@@ -426,7 +426,7 @@ class Vr extends BasePlugin {
     this._texture = null;
     this._effect = null;
     this._stereoMode = this.config.startInStereo;
-    this._rafId = NaN;
+    this._rafId = null;
     this._pointerDown = false;
     this._previousX = NaN;
     this._previousY = NaN;
@@ -436,8 +436,10 @@ class Vr extends BasePlugin {
   }
 
   _cancelAnimationFrame(): void {
-    cancelAnimationFrame(this._rafId);
-    this._rafId = NaN;
+    if (this._rafId) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
   }
 
   _onOverlayActionPointerDown(event: any): void {
