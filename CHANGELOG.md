@@ -1,6 +1,30 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [1.4.0](https://github.com/kaltura/playkit-js-vr/compare/v1.3.0...v1.4.0) (2020-08-06)
+
+
+### Bug Fixes
+
+* **FEC-9602:** after entering and exiting full screen, replay icon is not responding ([#40](https://github.com/kaltura/playkit-js-vr/issues/40)) ([33e89ec](https://github.com/kaltura/playkit-js-vr/commit/33e89ec))
+* UI.UI_CLICKED doesn't exist for player ([#34](https://github.com/kaltura/playkit-js-vr/issues/34)) ([06fa049](https://github.com/kaltura/playkit-js-vr/commit/06fa049))
+* **FEC-9422:** movement with 360 doesn't work ([#33](https://github.com/kaltura/playkit-js-vr/issues/33)) ([e63c28a](https://github.com/kaltura/playkit-js-vr/commit/e63c28a))
+
+
+### Build System
+
+* **FEC-10064:** add automatic release notes ([#38](https://github.com/kaltura/playkit-js-vr/issues/38)) ([2f70871](https://github.com/kaltura/playkit-js-vr/commit/2f70871))
+* **FEC-9495:** update after deploy stage to ping Jenkins ([#35](https://github.com/kaltura/playkit-js-vr/issues/35)) ([02b1626](https://github.com/kaltura/playkit-js-vr/commit/02b1626))
+* github bad certificate ([#37](https://github.com/kaltura/playkit-js-vr/issues/37)) ([c288fed](https://github.com/kaltura/playkit-js-vr/commit/c288fed))
+
+
+### Features
+
+* **FEC-10057:** move the plugin manager to kaltura player ([#45](https://github.com/kaltura/playkit-js-vr/issues/45)) ([75a2132](https://github.com/kaltura/playkit-js-vr/commit/75a2132)), closes [kaltura/kaltura-player-js#332](https://github.com/kaltura/playkit-js-vr/issues/332)
+* **FEC-10290:** upgrade NPM packages ([#44](https://github.com/kaltura/playkit-js-vr/issues/44)) ([7c1b7c9](https://github.com/kaltura/playkit-js-vr/commit/7c1b7c9))
+
+
 
 <a name="1.3.3"></a>
 ## [1.3.3](https://github.com/kaltura/playkit-js-vr/compare/v1.3.2...v1.3.3) (2020-06-10)
