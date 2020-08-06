@@ -1,5 +1,5 @@
 import '../../src/index.js';
-import {loadPlayer} from '@playkit-js/playkit-js';
+import {setup} from 'kaltura-player-js';
 import * as TestUtils from './utils/test-utils';
 
 const targetId = 'player-placeholder_vr.spec';
@@ -7,6 +7,8 @@ const targetId = 'player-placeholder_vr.spec';
 describe('VrPlugin', function () {
   let player;
   const config = {
+    targetId,
+    provider: {},
     sources: {
       progressive: [
         {
@@ -28,7 +30,7 @@ describe('VrPlugin', function () {
   }
 
   function setupPlayer(config) {
-    player = loadPlayer(config);
+    player = setup(config);
     const el = document.getElementById(targetId);
     el.appendChild(player.getView());
   }
