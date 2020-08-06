@@ -4,7 +4,7 @@ import * as TestUtils from './utils/test-utils';
 
 const targetId = 'player-placeholder_vr.spec';
 
-describe('VrPlugin', function() {
+describe('VrPlugin', function () {
   let player;
   const config = {
     targetId,
@@ -35,17 +35,17 @@ describe('VrPlugin', function() {
     el.appendChild(player.getView());
   }
 
-  before(function() {
+  before(function () {
     createPlayerPlaceholder(targetId);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     player.destroy();
     player = null;
     TestUtils.removeVideoElementsFromTestPage();
   });
 
-  after(function() {
+  after(function () {
     TestUtils.removeElement(targetId);
   });
 
