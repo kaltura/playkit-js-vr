@@ -1,11 +1,12 @@
 // @flow
-import {BasePlugin, Error as PKError, FakeEvent, Utils} from '@playkit-js/playkit-js';
+import {core, BasePlugin} from 'kaltura-player-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
 import {Error} from './errors';
 import './style.css';
 
+const {Error: PKError, FakeEvent, Utils} = core;
 /**
  * The video tag class.
  * @type {string}
