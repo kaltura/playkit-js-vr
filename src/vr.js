@@ -6,7 +6,7 @@ import {StereoEffect} from './stereo-effect';
 import {Error} from './errors';
 import './style.css';
 
-const {Error: PKError, FakeEvent, Utils} = core;
+const {Error: PKError, FakeEvent, Utils, CorsType} = core;
 /**
  * The video tag class.
  * @type {string}
@@ -130,7 +130,7 @@ class Vr extends BasePlugin {
       (env.os.name === 'iOS' || env.browser.name === 'Safari' || env.browser.name === 'Android Browser')
     ) {
       this._crossOriginSet = true;
-      this.player.crossOrigin = this.player.CorsType.ANONYMOUS;
+      this.player.crossOrigin = CorsType.ANONYMOUS;
     }
   }
 
