@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.1](https://github.com/kaltura/playkit-js-vr/compare/v1.4.0...v1.4.1) (2020-08-10)
+
+
+### Bug Fixes
+
+* **FEC-10404:** media doesn't work properly on Safari browser - no video displayed - Regression bug ([#46](https://github.com/kaltura/playkit-js-vr/issues/46)) ([3ef8a39](https://github.com/kaltura/playkit-js-vr/commit/3ef8a39))
+
+
+
 ## [1.4.0](https://github.com/kaltura/playkit-js-vr/compare/v1.3.0...v1.4.0) (2020-08-06)
 
 
