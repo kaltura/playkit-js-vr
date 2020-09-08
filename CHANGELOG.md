@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/kaltura/playkit-js-vr/compare/v1.4.0...v2.0.0) (2020-09-08)
+
+
+### Bug Fixes
+
+* **FEC-10404:** media doesn't work properly on Safari browser - no video displayed - Regression bug ([#46](https://github.com/kaltura/playkit-js-vr/issues/46)) ([3ef8a39](https://github.com/kaltura/playkit-js-vr/commit/3ef8a39))
+
+
+### Build System
+
+* **FEC-10064:** add automatic release notes ([#49](https://github.com/kaltura/playkit-js-vr/issues/49)) ([706dd15](https://github.com/kaltura/playkit-js-vr/commit/706dd15))
+
+
+### Features
+
+* **FEC-10347:** expose kaltura player as a global variable instead of UMD ([#47](https://github.com/kaltura/playkit-js-vr/issues/47)) ([d55e371](https://github.com/kaltura/playkit-js-vr/commit/d55e371))
+
+
+### Tests
+
+* faster unit tests ([#48](https://github.com/kaltura/playkit-js-vr/issues/48)) ([9669e72](https://github.com/kaltura/playkit-js-vr/commit/9669e72))
+
+
+### BREAKING CHANGES
+
+* **FEC-10347:** This package is not UMD anymore
+
+
+
 ### [1.4.1](https://github.com/kaltura/playkit-js-vr/compare/v1.4.0...v1.4.1) (2020-08-10)
 
 
