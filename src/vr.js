@@ -444,6 +444,7 @@ class Vr extends BasePlugin {
   }
 
   _onOverlayActionPointerDown(event: any): void {
+    event.preventDefault();
     this._pointerDown = true;
     this._previousX = event.clientX || event.touches[0].clientX;
     this._previousY = event.clientY || event.touches[0].clientY;
