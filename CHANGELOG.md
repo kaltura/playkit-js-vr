@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/kaltura/playkit-js-vr/compare/v2.0.0...v2.0.1) (2020-11-03)
+
+
+### Bug Fixes
+
+* **FEC-10557:** [android chrome][360] drag the video cause to all screen movement ([#51](https://github.com/kaltura/playkit-js-vr/issues/51)) ([677531a](https://github.com/kaltura/playkit-js-vr/commit/677531a))
+
+
+### Build System
+
+* remove plugins that already exist on preset-env ([#52](https://github.com/kaltura/playkit-js-vr/issues/52)) ([163f7a9](https://github.com/kaltura/playkit-js-vr/commit/163f7a9))
+
+
+
 ## [2.0.0](https://github.com/kaltura/playkit-js-vr/compare/v1.4.0...v2.0.0) (2020-09-08)
 
 
