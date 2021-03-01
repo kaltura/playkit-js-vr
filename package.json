@@ -46,7 +46,7 @@
     ]
   },
   "dependencies": {
-    "three": "^0.93.0"
+    "three": "^0.125.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
