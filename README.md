@@ -69,7 +69,80 @@ Finally, add the bundle as a script tag in your page, and initialize the player
 
 ## Documentation
 
-- **[Configuration](docs/configuration.md)**
+The Kaltura Player supports 360° video in both desktop and mobile device for any kind of motion: mouse, touch, device motion and keyboard keys.
+
+This plugin is depended on [three.js](https://github.com/mrdoob/three.js) library.
+
+The player will be informed that it deals with 360/vr media which is part of the kaltura player config sources (using providers population the sources with the hints below) 
+
+metadata must contain `"tags": "360"` and ` "vr": {}` which is not null
+
+in case app is using setMedia instead of load media `tags and vr` attribues are expected to be populated by app
+
+```
+{
+  "sources": {
+    "options": {},
+    "metadata": {
+      "tags": "360"
+    },
+    "hls": [],
+    "dash": [],
+    "id": "",
+    "duration": 362,
+    "type": "Vod",
+    "poster": "",
+    "dvr": false,
+    "vr": {},
+    "captions": []
+  }
+}
+```
+
+
+The vr plugin exposes some configurations:
+
+If the Player will load on stereo mode 
+
+If to enable toggle vr/stereo mode button.
+
+![example](./images/vrStereo.png)
+
+If to change the sensitivity of the motion using moveMultiplier attribute.
+by default is ```0.15```. 
+
+If to change the sensitivity the device itself, using deviceMotionMultiplier attribute.
+by default is ```1```. 
+
+If to change camer options - Theprojection mode is designed to mimic the way the human eye sees. 
+It is the most common projection mode used for rendering a 3D scene.
+[CameraOptions](https://threejs.org/docs/#api/en/cameras/PerspectiveCamera)
+
+```
+"vr": { 
+      "startInStereo": false,     
+      "toggleStereo": false,     
+      "moveMultiplier": 0.15,
+      "deviceMotionMultiplier": 1,
+      "cameraOptions": {
+        "fov": 75,
+        "aspect": 1.777, // (width/height)
+        "near": 0.1,
+        "far": 1000
+      },
+    },
+```    
+
+##### VR Plugin Player Event
+* `VR_STEREO_MODE_CHANGED`
+
+##### VR Plugin Player Error code
+* `VR_NOT_SUPPORTED`
+
+
+**[Configuration](docs/configuration.md)**
+
+**[VR Plugin Example](https://codepen.io/giladna/pen/abYgjxY)**
 
 ## Running the tests
 
