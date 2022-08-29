@@ -100,21 +100,21 @@ in case app is using setMedia instead of load media `tags and vr` attribues are 
 ```
 
 
-The vr plugin exposes some configurations:
+##### The vr plugin exposes some configurations:
 
-If the Player will load on stereo mode 
+* Player will load on stereo mode 
 
-If to enable toggle vr/stereo mode button.
+* Enable toggle vr/stereo mode button.
 
 ![example](./images/vrStereo.png)
 
-If to change the sensitivity of the motion using moveMultiplier attribute.
+* Change the sensitivity of the motion using moveMultiplier attribute.
 by default is ```0.15```. 
 
-If to change the sensitivity the device itself, using deviceMotionMultiplier attribute.
+* Change the sensitivity the device itself, using deviceMotionMultiplier attribute.
 by default is ```1```. 
 
-If to change camer options - Theprojection mode is designed to mimic the way the human eye sees. 
+* Change the camera options - The projection mode is designed to mimic the way the human eye sees. 
 It is the most common projection mode used for rendering a 3D scene.
 [CameraOptions](https://threejs.org/docs/#api/en/cameras/PerspectiveCamera)
 
