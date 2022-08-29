@@ -73,11 +73,14 @@ The Kaltura Player supports 360° video in both desktop and mobile device for an
 
 This plugin is depended on [three.js](https://github.com/mrdoob/three.js) library.
 
-The player will be informed that it deals with 360/vr media which is part of the kaltura player config sources (using providers population the sources with the hints below) 
+The player will be informed that it deals with 360/VR media by populating attributes in the `sources` object which is part of the kaltura player config 
+it might be populted using providers or the app itself) 
 
-metadata must contain `"tags": "360"` and ` "vr": {}` which is not null
+* metadata object must contain `"tags": "360"` and `"vr": {}` object which is not null.
 
-in case app is using setMedia instead of load media `tags and vr` attribues are expected to be populated by app
+in case app is using setMedia instead of load media `tags and vr` for 360 plyback these attribues are expected to be populated by app
+
+#### Media Sources Example 
 
 ```
 {
@@ -86,8 +89,8 @@ in case app is using setMedia instead of load media `tags and vr` attribues are 
     "metadata": {
       "tags": "360"
     },
-    "hls": [],
-    "dash": [],
+    "hls": [...],
+    "dash": ...],
     "id": "",
     "duration": 362,
     "type": "Vod",
@@ -100,7 +103,7 @@ in case app is using setMedia instead of load media `tags and vr` attribues are 
 ```
 
 
-##### The vr plugin exposes some configurations:
+##### The 360/VR plugin exposes some attribures from plugin configurations:
 
 * Player will load on stereo mode 
 
@@ -108,10 +111,10 @@ in case app is using setMedia instead of load media `tags and vr` attribues are 
 
 ![example](./images/vrStereo.png)
 
-* Change the sensitivity of the motion using moveMultiplier attribute.
+* Change the sensitivity of the touch motion using moveMultiplier attribute.
 by default is ```0.15```. 
 
-* Change the sensitivity the device itself, using deviceMotionMultiplier attribute.
+* Change the sensitivity the device motion itself, using deviceMotionMultiplier attribute.
 by default is ```1```. 
 
 * Change the camera options - The projection mode is designed to mimic the way the human eye sees. 
@@ -119,6 +122,8 @@ It is the most common projection mode used for rendering a 3D scene.
 [CameraOptions](https://threejs.org/docs/#api/en/cameras/PerspectiveCamera)
 
 ```
+plugins: {
+...
 "vr": { 
       "startInStereo": false,     
       "toggleStereo": false,     
@@ -131,16 +136,19 @@ It is the most common projection mode used for rendering a 3D scene.
         "far": 1000
       },
     },
+}    
 ```    
 
 ##### VR Plugin Player Event
-* `VR_STEREO_MODE_CHANGED`
+* `VR_STEREO_MODE_CHANGED` - this event will be fired once user click on the vr icon and changes the playback state from `VR` to `STEREO` mode.
 
 ##### VR Plugin Player Error code
-* `VR_NOT_SUPPORTED`
+* `VR_NOT_SUPPORTED` - this event will be fired once the device used for 360/VR playback does not support this mode.
 
 
 **[Configuration](docs/configuration.md)**
+
+* In the following example you can change the plugin attributes and get the feeling what each attribute does.
 
 **[VR Plugin Example](https://codepen.io/giladna/pen/abYgjxY)**
 
