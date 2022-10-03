@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.2](https://github.com/kaltura/playkit-js-vr/compare/v2.0.1...v2.0.2) (2022-10-03)
+
+
+### Bug Fixes
+
+* **FEC-12514:** vr plugin + ima mouse scroll is not working ([#85](https://github.com/kaltura/playkit-js-vr/issues/85)) ([930aa12](https://github.com/kaltura/playkit-js-vr/commit/930aa12))
+
+
+### Build System
+
+* set prerelease false ([426506f](https://github.com/kaltura/playkit-js-vr/commit/426506f))
+* **FEC-10700:** Improvement for CI/CD ([#65](https://github.com/kaltura/playkit-js-vr/issues/65)) ([999e33a](https://github.com/kaltura/playkit-js-vr/commit/999e33a))
+* **FEC-11389:** reduce builds from travis ([4d41963](https://github.com/kaltura/playkit-js-vr/commit/4d41963))
+
+
+
 ### [2.0.1](https://github.com/kaltura/playkit-js-vr/compare/v2.0.0...v2.0.1) (2020-11-03)
 
 
