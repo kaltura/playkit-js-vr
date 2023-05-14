@@ -1,5 +1,5 @@
 // @flow
-import {core, BasePlugin} from 'kaltura-player-js';
+import {core, BasePlugin} from '@playkit-js/kaltura-player-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
