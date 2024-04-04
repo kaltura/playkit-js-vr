@@ -1,10 +1,18 @@
 // @flow
-import {core, BasePlugin} from '@playkit-js/kaltura-player-js';
+/**
+ * @jsx h
+ * @ignore
+ */
+// $FlowFixMe
+import {h} from 'preact';
+import {core, BasePlugin, ui} from '@playkit-js/kaltura-player-js';
 import * as THREE from 'three';
 import {CustomVideoTexture} from './custom-video-texture';
 import {StereoEffect} from './stereo-effect';
 import {Error} from './errors';
 import './style.css';
+
+const {Text} = ui.preacti18n;
 
 const {Error: PKError, FakeEvent, Utils, CorsType} = core;
 /**
@@ -150,23 +158,30 @@ class Vr extends BasePlugin {
   }
 
   _isVrSupported(source: PKMediaSourceObject): boolean {
-    let message = '';
+    let error = null;
     if (this._isUnSpportedBrowser()) {
-      message = Error.UNSUPPORTED_BROWSER;
+      error = Error.UNSUPPORTED_BROWSER;
     }
     if (this._isIOSPlayer()) {
-      message = Error.PLAYSINLINE;
+      error = Error.PLAYSINLINE;
     }
     if (source.drmData) {
-      message = Error.DRM;
+      error = Error.DRM;
     }
-    if (message) {
+    if (error) {
       this.eventManager.listen(this.player, this.player.Event.PLAYING, () => {
         this.logger.warn('The playback paused due to VR experience not supported');
         this.player.pause();
       });
+      const errorDetails = {
+        errorTitle: <Text id={'vr.error_title'} />,
+        errorMessage: <Text id={error.id} />
+      };
       this.player.dispatchEvent(
-        new FakeEvent(this.player.Event.ERROR, new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, message))
+        new FakeEvent(
+          this.player.Event.ERROR,
+          new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, error.message, errorDetails)
+        )
       );
       return false;
     }
@@ -333,10 +348,14 @@ class Vr extends BasePlugin {
         // the video size is unavailable. cannot set the canvas size.
         this.player.pause();
         this._clean();
+        const errorDetails = {
+          errorTitle: <Text id={'vr.error_title'} />,
+          errorMessage: <Text id={Error.VIDEO_SIZE.id} />
+        };
         this.player.dispatchEvent(
           new FakeEvent(
             this.player.Event.ERROR,
-            new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, Error.VIDEO_SIZE)
+            new PKError(PKError.Severity.CRITICAL, PKError.Category.VR, PKError.Code.VR_NOT_SUPPORTED, Error.VIDEO_SIZE.message, errorDetails)
           )
         );
       }
