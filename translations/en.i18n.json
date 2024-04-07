@@ -1,0 +1,12 @@
+{
+  "en": {
+    "vr": {
+      "error_title": "VR experience error",
+      "default_error_message": "The VR-360 plugin has encountered an error, please try again later.",
+      "unsupported_browser_error_message": "Your browser doesn't support the features that are required to enable VR experience.",
+      "playsinline_error_message": "The playsinline configuration must be true for VR experience on iPhone device.",
+      "drm_error_message": "Cannot apply VR experience for DRM content.",
+      "video_size_error_message": "Unable to obtain the video size for VR canvas."
+    }
+  }
+}

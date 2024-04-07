@@ -53,11 +53,11 @@
     "@babel/core": "^7.10.5",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-transform-flow-strip-types": "^7.10.4",
+    "@babel/plugin-transform-react-jsx": "^7.14.3",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-flow": "^7.10.4",
     "@babel/register": "^7.10.5",
-    "@playkit-js/playkit-js": "latest",
-    "@playkit-js/kaltura-player-js": "latest",
+    "@playkit-js/kaltura-player-js": "3.17.13-canary.0-0eb945c",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
@@ -73,6 +73,7 @@
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-mocha-no-only": "^1.1.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.34.1",
     "flow-bin": "^0.129.0",
     "husky": "^4.2.5",
     "istanbul": "^0.4.5",
@@ -102,8 +103,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "peerDependencies": {
-    "@playkit-js/playkit-js": "latest",
-    "@playkit-js/kaltura-player-js": "latest"
+    "@playkit-js/kaltura-player-js": "3.17.13-canary.0-0eb945c"
   },
   "publishConfig": {
     "access": "public"
