@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 2.1.0 (2024-04-09)
+
+
+### Features
+
+* **FEC-13652:** add meaningful error message ([#106](https://github.com/kaltura/playkit-js-vr/issues/106)) ([8e60b42](https://github.com/kaltura/playkit-js-vr/commit/8e60b42))
+
+
+
 ### 2.0.4 (2023-05-07)
 
 
