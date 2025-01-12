@@ -1,0 +1,12 @@
+{
+  "ca": {
+    "vr": {
+      "error_title": "Error de l'experiència VR",
+      "default_error_message": "El plugin VR-360 ha trobat un error, si us plau, torna a intentar-ho més tard.",
+      "unsupported_browser_error_message": "El teu navegador no és compatible amb les funcions necessàries per habilitar l'experiència VR.",
+      "playsinline_error_message": "La configuració playsinline ha de ser certa per a l'experiència VR en dispositius iPhone.",
+      "drm_error_message": "No es pot aplicar l'experiència VR per contingut DRM.",
+      "video_size_error_message": "No s'ha pogut obtenir la mida del vídeo per al llenç VR."
+    }
+  }
+}
