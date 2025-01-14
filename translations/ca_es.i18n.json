@@ -1,5 +1,5 @@
 {
-  "ca": {
+  "ca_es": {
     "vr": {
       "error_title": "Error de l'experiència VR",
       "default_error_message": "El plugin VR-360 ha trobat un error, si us plau, torna a intentar-ho més tard.",
