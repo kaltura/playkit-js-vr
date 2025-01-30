@@ -106,6 +106,7 @@ class Vr extends BasePlugin {
     super(name, player, config);
     this._initMembers();
     this._addBindings();
+    this._foo();
   }
 
   /**
@@ -280,6 +281,11 @@ class Vr extends BasePlugin {
     } else if (this._renderer) {
       this._renderer.render(this._scene, this._camera);
     }
+  }
+
+  _foo(): void {
+    console.log("got here")
+    this.player.setSourcesObject1();
   }
 
   _updateCamera(): void {
