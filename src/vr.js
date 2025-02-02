@@ -61,6 +61,7 @@ class Vr extends BasePlugin {
    * @static
    */
   static defaultConfig: Object = {
+    tag: '360',
     moveMultiplier: 0.15,
     deviceMotionMultiplier: 1,
     startInStereo: false,
@@ -95,6 +96,7 @@ class Vr extends BasePlugin {
   _longitude: number;
   _calculateCanvasSizeInterval: ?IntervalID;
   _crossOriginSet: boolean;
+  _tag: string;
 
   /**
    * @constructor
@@ -106,7 +108,7 @@ class Vr extends BasePlugin {
     super(name, player, config);
     this._initMembers();
     this._addBindings();
-    this._foo();
+    this._updatePlayerVrPluginIsOn(this.config.tag);
   }
 
   /**
@@ -240,6 +242,7 @@ class Vr extends BasePlugin {
     this._texture.minFilter = this._texture.magFilter = THREE.LinearFilter;
     this._texture.generateMipmaps = false;
     this._texture.format = THREE.RGBFormat;
+    this._tag = this.config.tag ?? 360;
 
     const geometry = new THREE.SphereBufferGeometry(256, 32, 32);
     geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
@@ -283,9 +286,9 @@ class Vr extends BasePlugin {
     }
   }
 
-  _foo(): void {
-    console.log("got here")
-    this.player.setSourcesObject1();
+  _updatePlayerVrPluginIsOn(vrTag: string): void {
+    this._tag = vrTag;
+    this.player._updatePlayerVrPluginIsOn(vrTag);
   }
 
   _updateCamera(): void {
@@ -459,6 +462,7 @@ class Vr extends BasePlugin {
     this._latitude = 0;
     this._longitude = 180;
     this._crossOriginSet = false;
+    this._tag = null;
   }
 
   _cancelAnimationFrame(): void {
