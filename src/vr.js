@@ -461,7 +461,7 @@ class Vr extends BasePlugin {
     this._latitude = 0;
     this._longitude = 180;
     this._crossOriginSet = false;
-    this._tag = null;
+    this._tag = this.config.tag;
   }
 
   _cancelAnimationFrame(): void {
