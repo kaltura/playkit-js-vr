@@ -242,7 +242,6 @@ class Vr extends BasePlugin {
     this._texture.minFilter = this._texture.magFilter = THREE.LinearFilter;
     this._texture.generateMipmaps = false;
     this._texture.format = THREE.RGBFormat;
-    this._tag = this.config.tag ?? 360;
 
     const geometry = new THREE.SphereBufferGeometry(256, 32, 32);
     geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
@@ -287,7 +286,7 @@ class Vr extends BasePlugin {
   }
 
   _updatePlayerVrPluginIsOn(vrTag: string): void {
-    this._tag = vrTag;
+    this._tag = vrTag ?? 360;
     this.player._updatePlayerVrPluginIsOn(vrTag);
   }
 
