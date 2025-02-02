@@ -286,7 +286,7 @@ class Vr extends BasePlugin {
   }
 
   _updatePlayerVrPluginIsOn(vrTag: string): void {
-    this._tag = vrTag ?? 360;
+    this._tag = vrTag ?? '360';
     this.player._updatePlayerVrPluginIsOn(vrTag);
   }
 
