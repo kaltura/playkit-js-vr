@@ -108,7 +108,7 @@ class Vr extends BasePlugin {
     super(name, player, config);
     this._initMembers();
     this._addBindings();
-    this._updatePlayerVrPluginIsOn(this.config.tag);
+    this.updateVrIsOn(this.config.tag);
   }
 
   /**
@@ -285,9 +285,9 @@ class Vr extends BasePlugin {
     }
   }
 
-  _updatePlayerVrPluginIsOn(vrTag: string): void {
+  updateVrIsOn(vrTag: string): void {
     this._tag = vrTag ?? '360';
-    this.player._updatePlayerVrPluginIsOn(vrTag);
+    this.player.setVrTag(vrTag);
   }
 
   _updateCamera(): void {
