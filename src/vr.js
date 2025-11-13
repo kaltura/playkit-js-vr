@@ -69,6 +69,12 @@ class Vr extends BasePlugin {
       aspect: 640 / 360,
       near: 0.1,
       far: 1000
+    },
+    keyboardShortcutsMap: {
+      left: 65, // 'A'
+      up: 87, // 'W'
+      right: 68, // 'D'
+      down: 83 // 'S'
     }
   };
 
@@ -194,7 +200,7 @@ class Vr extends BasePlugin {
    * @returns {void}
    */
   _addMotionBindings(): void {
-    const overlayAction = Utils.Dom.getElementBySelector(`#${this.config.rootElement} .${OVERLAY_ACTION_CLASS}`);
+    const overlayAction = Utils.Dom.getElementBySelector(`#${`player-placeholder`} .${OVERLAY_ACTION_CLASS}`);
     if (overlayAction) {
       this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
       this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
@@ -203,6 +209,8 @@ class Vr extends BasePlugin {
       this.eventManager.listen(window, 'mouseup', this._onDocumentPointerUp.bind(this));
       this.eventManager.listen(window, 'touchend', this._onDocumentPointerUp.bind(this));
     }
+    this.eventManager.listen(window, 'keydown', e => this._onKeyDown(e));
+
     if (window.DeviceMotionEvent) {
       this.eventManager.listen(window, 'devicemotion', this._onDeviceMotion.bind(this));
     }
@@ -483,6 +491,23 @@ class Vr extends BasePlugin {
 
   _onDocumentPointerUp(): void {
     this._pointerDown = false;
+  }
+
+  _onKeyDown(event: any): void {
+    const moveAmount = this.config.moveMultiplier * 10;
+    const shortcuts = this.config.keyboardShortcutsMap;
+    if (event.keyCode === shortcuts.left) {
+      this._longitude -= moveAmount;
+    }
+    if (event.keyCode === shortcuts.right) {
+      this._longitude += moveAmount;
+    }
+    if (event.keyCode === shortcuts.up) {
+      this._latitude += moveAmount;
+    }
+    if (event.keyCode === shortcuts.down) {
+      this._latitude -= moveAmount;
+    }
   }
 
   _getMobileVibrationValue(): number {
