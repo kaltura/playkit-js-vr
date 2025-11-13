@@ -200,7 +200,7 @@ class Vr extends BasePlugin {
    * @returns {void}
    */
   _addMotionBindings(): void {
-    const overlayAction = Utils.Dom.getElementBySelector(`#${`player-placeholder`} .${OVERLAY_ACTION_CLASS}`);
+    const overlayAction = Utils.Dom.getElementBySelector(`#${this.config.rootElement} .${OVERLAY_ACTION_CLASS}`);
     if (overlayAction) {
       this.eventManager.listen(overlayAction, 'mousedown', e => this._onOverlayActionPointerDown(e));
       this.eventManager.listen(overlayAction, 'touchstart', e => this._onOverlayActionPointerDown(e));
