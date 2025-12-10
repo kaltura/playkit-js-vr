@@ -130,6 +130,7 @@ class Vr extends BasePlugin {
           this.eventManager.listen(this.player, this.player.Event.PLAY, () => this._onPlay());
           this.eventManager.listen(this.player, this.player.Event.PLAYING, () => this._onPlaying());
           this.eventManager.listen(this.player, this.player.Event.RESIZE, () => this._updateCanvasSize());
+          this.eventManager.listen(this.player, this.player.Event.FIRST_PLAYING, () => this._updateCameraAspect());
           this._setCrossOrigin();
         }
       }
@@ -287,6 +288,15 @@ class Vr extends BasePlugin {
       this._effect.render(this._scene, this._camera);
     } else if (this._renderer) {
       this._renderer.render(this._scene, this._camera);
+    }
+  }
+
+  _updateCameraAspect(): void {
+    if (this._camera) {
+      const dimensions = this._getCanvasDimensions();
+      const aspect = dimensions.width && dimensions.height ? dimensions.width / dimensions.height : this._camera.aspect;
+      this._camera.aspect = aspect;
+      this._camera.updateProjectionMatrix();
     }
   }
 
