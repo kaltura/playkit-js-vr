@@ -59,6 +59,7 @@
     "@babel/preset-flow": "^7.10.4",
     "@babel/register": "^7.10.5",
     "@playkit-js/kaltura-player-js": "3.17.13-canary.0-0eb945c",
+    "@playkit-js/webpack-common": "^1.0.3",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
