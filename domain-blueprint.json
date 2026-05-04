@@ -114,7 +114,7 @@
   "playerEvents": [
     {
       "event": "VR_STEREO_MODE_CHANGED",
-      "description": "Fired when user toggles between VR and stereo playback mode"
+      "description": "Fired when user toggles between VR and stereo mode"
     }
   ],
 
