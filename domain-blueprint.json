@@ -1,0 +1,137 @@
+{
+  "repositoryName": "playkit-js-vr",
+  "packageName": "@playkit-js/playkit-js-vr",
+  "version": "2.1.5",
+
+  "coreResponsibility": "A plugin for the Kaltura PlayKit JS Player that provides VR/360° video playback capabilities with support for stereo mode, device motion, touch/mouse interaction, and keyboard navigation.",
+
+  "domainAndLogicOwnership": {
+    "featureOwnership": [
+      "360° spherical video rendering using WebGL/Three.js",
+      "VR stereo mode (side-by-side split-screen rendering)",
+      "Stereo mode toggle button in player UI",
+      "Device motion/orientation sensor handling for immersive viewing",
+      "Mouse drag and touch gesture camera control",
+      "Keyboard navigation for camera movement (WASD keys)",
+      "Camera perspective management (FOV, aspect ratio, near/far planes)",
+      "Cross-browser WebGL canvas rendering",
+      "iOS device motion permission handling"
+    ],
+    "dataHandling": [
+      "Camera position state (latitude, longitude coordinates)",
+      "Stereo mode toggle state",
+      "Three.js scene graph and renderer state",
+      "Video texture mapping to spherical geometry",
+      "Player resize event handling for canvas dimensions",
+      "VR metadata detection from media sources (tags: '360', vr object)"
+    ]
+  },
+
+  "integrationPoints": {
+    "upstream": [
+      "playkit-js (core player engine)",
+      "kaltura-player-js (player wrapper providing BasePlugin, event system, UI framework)",
+      "Media providers that supply VR metadata (sources.metadata.tags='360', sources.vr object)"
+    ],
+    "downstream": [
+      "Kaltura Player UI layer (stereo toggle button component)",
+      "Player control bar integration",
+      "Any application consuming the Kaltura Player with VR content"
+    ]
+  },
+
+  "externalAPIs": {
+    "thirdPartySdks": [
+      "Three.js (v0.93.0) - 3D WebGL rendering library for spherical video projection, camera control, and stereo effect"
+    ],
+    "kalturaAPIs": [],
+    "browserAPIs": [
+      "WebGL/Canvas API",
+      "DeviceMotionEvent API",
+      "DeviceOrientationEvent API (with iOS 13+ permission request)",
+      "requestAnimationFrame API"
+    ]
+  },
+
+  "technicalStack": {
+    "primaryLanguages": ["JavaScript (ES6+)", "Flow (static typing)"],
+    "frameworks": ["Preact (for UI components)", "Three.js (3D rendering)"],
+    "buildTools": ["Webpack", "Babel"],
+    "testingTools": ["Karma", "Mocha", "Chai", "Sinon"],
+    "entryPoints": [
+      {
+        "file": "src/index.js",
+        "description": "Plugin registration entry point - registers 'vr' plugin with Kaltura Player"
+      },
+      {
+        "file": "src/vr.js",
+        "description": "Core VR plugin implementation - contains Vr class extending BasePlugin with all VR logic"
+      },
+      {
+        "file": "src/stereo-effect.js",
+        "description": "Stereo rendering implementation using Three.js StereoCamera"
+      },
+      {
+        "file": "src/custom-video-texture.js",
+        "description": "IE11 workaround for video texture rendering"
+      },
+      {
+        "file": "src/errors.js",
+        "description": "VR-specific error definitions"
+      }
+    ],
+    "outputBundle": "dist/playkit-vr.js"
+  },
+
+  "triageKeywords": [
+    "VR",
+    "360",
+    "360 video",
+    "spherical video",
+    "stereo mode",
+    "VR_NOT_SUPPORTED",
+    "VR_STEREO_MODE_CHANGED",
+    "three.js",
+    "WebGL",
+    "device motion",
+    "gyroscope",
+    "playkit-vr",
+    "canvas rendering",
+    "camera orientation",
+    "360 playback",
+    "VR headset",
+    "split screen",
+    "panoramic video"
+  ],
+
+  "errorCodes": [
+    {
+      "code": "VR_NOT_SUPPORTED",
+      "description": "Device/browser does not support VR features"
+    }
+  ],
+
+  "playerEvents": [
+    {
+      "event": "VR_STEREO_MODE_CHANGED",
+      "description": "Fired when user toggles between VR and stereo playback mode"
+    }
+  ],
+
+  "configurationNamespace": "plugins.vr",
+
+  "browserCompatibility": {
+    "supported": [
+      "Chrome",
+      "Firefox",
+      "Safari 11+",
+      "iOS 11.3+",
+      "IE 11 (Windows 8.1/10 only)"
+    ],
+    "limitations": [
+      "DRM content not supported with VR",
+      "playsinline must be true on iPhone",
+      "iOS 13+ requires user interaction for DeviceMotionEvent permission"
+    ]
+  }
+}
